@@ -23,7 +23,7 @@ export const LoginForm: React.FC = () => {
   const [apiError, setApiError] = useState<ErrorResponse | null>(null);
 
   // Check if we're in development mode
-  const isDevelopment = import.meta.env.DEV || dev;
+  const isDevelopment = import.meta.env.DEV || "dev";
 
   // Dummy credentials for development
   const dummyCredentials = {

@@ -2,7 +2,10 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import { RegistrationPage } from './modules/customer/pages/RegistrationPage';
+import { LoginPage } from './modules/customer/pages/LoginPage';
 import { DashboardPage } from './modules/customer/pages/DashboardPage';
+import { ProjectsPage } from './modules/customer/pages/ProjectsPage';
+import { useAuthStore } from './store/authStore';
 
 const theme = {
   token: {
@@ -27,16 +30,42 @@ const theme = {
   },
 };
 
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated } = useAuthStore();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/customer/login" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
 function App() {
   return (
     <ConfigProvider theme={theme}>
       <Router>
         <div className="App">
           <Routes>
-            <Route path="/" element={<Navigate to="/customer/registration" replace />} />
+            <Route path="/" element={<Navigate to="/customer/login" replace />} />
+            <Route path="/customer/login" element={<LoginPage />} />
             <Route path="/customer/registration" element={<RegistrationPage />} />
-            <Route path="/customer/dashboard" element={<DashboardPage />} />
-            <Route path="*" element={<Navigate to="/customer/registration" replace />} />
+            <Route 
+              path="/customer/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/customer/projects" 
+              element={
+                <ProtectedRoute>
+                  <ProjectsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="*" element={<Navigate to="/customer/login" replace />} />
           </Routes>
         </div>
       </Router>

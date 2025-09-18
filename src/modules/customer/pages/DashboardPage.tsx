@@ -154,12 +154,8 @@ export const DashboardPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
-    </DashboardLayout>
-  );
-};
 
-        </div>
-
+      <div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card 
             className="shadow-lg border-0 rounded-2xl"
@@ -261,6 +257,6 @@ export const DashboardPage: React.FC = () => {
           </div>
         </Card>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };

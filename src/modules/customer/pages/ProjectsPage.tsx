@@ -11,7 +11,8 @@ import {
   Empty,
   Radio,
   List,
-  Avatar
+  Avatar,
+  Divider
 } from 'antd';
 import { 
   FolderOpen, 
@@ -20,12 +21,14 @@ import {
   Calendar,
   Grid,
   List as ListIcon,
-  ExternalLink
+  ExternalLink,
+  Plus
 } from 'lucide-react';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
 import { ProjectService, Project } from '../../../services/projectService';
 import { ErrorDisplay } from '../../../components/error/ErrorDisplay';
 import { ErrorResponse } from '../../../types/error.types';
+import { AddProjectDrawer } from '../components/AddProjectDrawer';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -36,6 +39,7 @@ export const ProjectsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ErrorResponse | null>(null);
   const [viewType, setViewType] = useState<ViewType>('grid');
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     fetchProjects();
@@ -52,6 +56,10 @@ export const ProjectsPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleProjectAdded = () => {
+    fetchProjects();
   };
 
   const getStatusColor = (status: string) => {
@@ -78,12 +86,21 @@ export const ProjectsPage: React.FC = () => {
     }
   };
 
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
   const renderGridView = () => (
     <Row gutter={[24, 24]}>
       {projects.map((project) => (
         <Col xs={24} sm={12} lg={8} xl={6} key={project.id}>
           <Card
-            className="h-full shadow-lg border-0 rounded-2xl hover:shadow-xl transition-all duration-300"
+            className="shadow-lg border-0 rounded-2xl hover:shadow-xl transition-all duration-300"
             actions={[
               <Button
                 type="link"
@@ -95,46 +112,58 @@ export const ProjectsPage: React.FC = () => {
               </Button>
             ]}
           >
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
+            <div className="space-y-4">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <Title level={5} className="mb-1 line-clamp-1">
+                    {project.project_name}
+                  </Title>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Tag 
+                      color={getStatusColor(project.status)}
+                      className="text-xs"
+                    >
+                      {project.status.replace('_', ' ').toUpperCase()}
+                    </Tag>
+                  </div>
+                </div>
                 <Avatar
                   size="small"
                   icon={getProjectTypeIcon(project.project_type)}
                   style={{ backgroundColor: '#000336' }}
                 />
-                <Title level={5} className="mb-0">
-                  {project.project_name}
-                </Title>
               </div>
-              
-              <Tag 
-                color={getStatusColor(project.status)}
-                className="mb-3"
+
+              <Paragraph 
+                className="text-gray-600 text-sm mb-3"
+                ellipsis={{ rows: 2, tooltip: project.description }}
               >
-                {project.status.replace('_', ' ').toUpperCase()}
-              </Tag>
-            </div>
+                {project.description}
+              </Paragraph>
 
-            <Paragraph 
-              className="text-gray-600 mb-4"
-              ellipsis={{ rows: 2, tooltip: project.description }}
-            >
-              {project.description}
-            </Paragraph>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Target size={12} className="text-gray-400 flex-shrink-0" />
+                  <Text className="text-gray-600 text-xs line-clamp-1">
+                    {project.project_goal.goal}
+                  </Text>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <Globe size={12} className="text-gray-400 flex-shrink-0" />
+                  <Text className="text-gray-600 text-xs capitalize">
+                    {project.project_type.replace('_', ' ')}
+                  </Text>
+                </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Target size={14} />
-                <Text className="text-gray-600">
-                  {project.project_goal.goal}
-                </Text>
-              </div>
-              
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Globe size={14} />
-                <Text className="text-gray-600 capitalize">
-                  {project.project_type}
-                </Text>
+                {project.created_on && (
+                  <div className="flex items-center gap-2">
+                    <Calendar size={12} className="text-gray-400 flex-shrink-0" />
+                    <Text className="text-gray-500 text-xs">
+                      {formatDate(project.created_on)}
+                    </Text>
+                  </div>
+                )}
               </div>
             </div>
           </Card>
@@ -193,9 +222,17 @@ export const ProjectsPage: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <Globe size={14} className="text-gray-400" />
                     <Text className="text-gray-600 capitalize">
-                      {project.project_type}
+                      {project.project_type.replace('_', ' ')}
                     </Text>
                   </div>
+                  {project.created_on && (
+                    <div className="flex items-center gap-2">
+                      <Calendar size={14} className="text-gray-400" />
+                      <Text className="text-gray-500">
+                        Created: {formatDate(project.created_on)}
+                      </Text>
+                    </div>
+                  )}
                 </Space>
               </div>
             }
@@ -218,20 +255,36 @@ export const ProjectsPage: React.FC = () => {
             </Text>
           </div>
           
-          <Radio.Group
-            value={viewType}
-            onChange={(e) => setViewType(e.target.value)}
-            buttonStyle="solid"
-          >
-            <Radio.Button value="grid">
-              <Grid size={16} className="mr-2" />
-              Grid
-            </Radio.Button>
-            <Radio.Button value="list">
-              <ListIcon size={16} className="mr-2" />
-              List
-            </Radio.Button>
-          </Radio.Group>
+          <div className="flex items-center gap-3">
+            <Button
+              type="primary"
+              size="large"
+              icon={<Plus size={18} />}
+              onClick={() => setDrawerOpen(true)}
+              className="flex items-center gap-2"
+              style={{ 
+                backgroundColor: '#00BFA5',
+                borderColor: '#00BFA5',
+              }}
+            >
+              Add Project
+            </Button>
+            
+            <Radio.Group
+              value={viewType}
+              onChange={(e) => setViewType(e.target.value)}
+              buttonStyle="solid"
+            >
+              <Radio.Button value="grid">
+                <Grid size={16} className="mr-2" />
+                Grid
+              </Radio.Button>
+              <Radio.Button value="list">
+                <ListIcon size={16} className="mr-2" />
+                List
+              </Radio.Button>
+            </Radio.Group>
+          </div>
         </div>
 
         {projects.length > 0 && (
@@ -278,6 +331,12 @@ export const ProjectsPage: React.FC = () => {
           {viewType === 'grid' ? renderGridView() : renderListView()}
         </div>
       )}
+
+      <AddProjectDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onProjectAdded={handleProjectAdded}
+      />
     </DashboardLayout>
   );
 };

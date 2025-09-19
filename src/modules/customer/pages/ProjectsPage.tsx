@@ -12,7 +12,12 @@ import {
   Radio,
   List,
   Avatar,
-  Divider
+  Divider,
+  Input,
+  Select,
+  Tooltip,
+  Badge,
+  message
 } from 'antd';
 import { 
   FolderOpen, 
@@ -22,7 +27,15 @@ import {
   Grid,
   List as ListIcon,
   ExternalLink,
-  Plus
+  Plus,
+  Search,
+  Filter,
+  SortAsc,
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  Pause,
+  X as XIcon
 } from 'lucide-react';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
 import { ProjectService, Project } from '../../../services/projectService';
@@ -31,19 +44,30 @@ import { ErrorResponse } from '../../../types/error.types';
 import { AddProjectDrawer } from '../components/AddProjectDrawer';
 
 const { Title, Text, Paragraph } = Typography;
+const { Search: AntSearch } = Input;
+const { Option } = Select;
 
 type ViewType = 'grid' | 'list';
+type SortOption = 'name' | 'date' | 'status';
 
 export const ProjectsPage: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ErrorResponse | null>(null);
   const [viewType, setViewType] = useState<ViewType>('grid');
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<SortOption>('date');
 
   useEffect(() => {
     fetchProjects();
   }, []);
+
+  useEffect(() => {
+    filterAndSortProjects();
+  }, [projects, searchTerm, statusFilter, sortBy]);
 
   const fetchProjects = async () => {
     try {
@@ -51,38 +75,128 @@ export const ProjectsPage: React.FC = () => {
       setError(null);
       const response = await ProjectService.getProjects();
       setProjects(response.results);
+      
+      // Announce to screen readers
+      message.success(`${response.results.length} projects loaded successfully`, 2);
     } catch (err: any) {
       setError(err as ErrorResponse);
+      message.error('Failed to load projects. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleProjectAdded = () => {
-    fetchProjects();
+  const filterAndSortProjects = () => {
+    let filtered = [...projects];
+
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(project =>
+        project.project_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.project_goal.goal.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Status filter
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(project => 
+        project.status.toLowerCase() === statusFilter.toLowerCase()
+      );
+    }
+
+    // Sort
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return a.project_name.localeCompare(b.project_name);
+        case 'date':
+          if (!a.created_on || !b.created_on) return 0;
+          return new Date(b.created_on).getTime() - new Date(a.created_on).getTime();
+        case 'status':
+          return a.status.localeCompare(b.status);
+        default:
+          return 0;
+      }
+    });
+
+    setFilteredProjects(filtered);
   };
 
-  const getStatusColor = (status: string) => {
+  const handleProjectAdded = () => {
+    fetchProjects();
+    message.success('Project created successfully!');
+  };
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setStatusFilter('all');
+    setSortBy('date');
+    message.info('Filters cleared');
+  };
+
+  const getStatusConfig = (status: string) => {
     const normalizedStatus = status.toLowerCase();
     switch (normalizedStatus) {
       case 'completed':
-        return '#00BFA5';
+        return { 
+          color: '#00BFA5', 
+          icon: <CheckCircle2 size={12} />, 
+          label: 'Completed',
+          ariaLabel: 'Project status: Completed'
+        };
       case 'in_progress':
       case 'in progress':
-        return '#FFD700';
-      case 'pending':
-        return '#FF6B6B';
+        return { 
+          color: '#FFD700', 
+          icon: <Clock size={12} />, 
+          label: 'In Progress',
+          ariaLabel: 'Project status: In Progress'
+        };
+      case 'planning':
+        return { 
+          color: '#1890ff', 
+          icon: <Target size={12} />, 
+          label: 'Planning',
+          ariaLabel: 'Project status: Planning'
+        };
+      case 'on_hold':
+      case 'on hold':
+        return { 
+          color: '#faad14', 
+          icon: <Pause size={12} />, 
+          label: 'On Hold',
+          ariaLabel: 'Project status: On Hold'
+        };
+      case 'cancelled':
+        return { 
+          color: '#ff4d4f', 
+          icon: <XIcon size={12} />, 
+          label: 'Cancelled',
+          ariaLabel: 'Project status: Cancelled'
+        };
       default:
-        return '#666';
+        return { 
+          color: '#666', 
+          icon: <AlertCircle size={12} />, 
+          label: status.replace('_', ' '),
+          ariaLabel: `Project status: ${status.replace('_', ' ')}`
+        };
     }
   };
 
   const getProjectTypeIcon = (type: string) => {
     switch (type.toLowerCase()) {
       case 'website':
-        return <Globe size={16} />;
+        return <Globe size={16} aria-label="Website project" />;
+      case 'mobile_app':
+        return <FolderOpen size={16} aria-label="Mobile app project" />;
+      case 'web_app':
+        return <FolderOpen size={16} aria-label="Web application project" />;
+      case 'api':
+        return <FolderOpen size={16} aria-label="API project" />;
       default:
-        return <FolderOpen size={16} />;
+        return <FolderOpen size={16} aria-label="Project" />;
     }
   };
 
@@ -95,157 +209,221 @@ export const ProjectsPage: React.FC = () => {
     });
   };
 
+  const getUniqueStatuses = () => {
+    const statuses = [...new Set(projects.map(p => p.status.toLowerCase()))];
+    return statuses.map(status => ({
+      value: status,
+      label: status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+    }));
+  };
+
   const renderGridView = () => (
-    <Row gutter={[24, 24]}>
-      {projects.map((project) => (
-        <Col xs={24} sm={12} lg={8} xl={6} key={project.id}>
-          <Card
-            className="shadow-lg border-0 rounded-2xl hover:shadow-xl transition-all duration-300"
-            actions={[
-              <Button
-                type="link"
-                icon={<ExternalLink size={16} />}
-                onClick={() => window.open(project.website_url, '_blank')}
-                className="flex items-center justify-center gap-2"
-              >
-                Visit Site
-              </Button>
-            ]}
-          >
-            <div className="space-y-4">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <Title level={5} className="mb-1 line-clamp-1">
-                    {project.project_name}
-                  </Title>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Tag 
-                      color={getStatusColor(project.status)}
-                      className="text-xs"
+    <Row gutter={[24, 24]} role="grid" aria-label="Projects grid view">
+      {filteredProjects.map((project, index) => {
+        const statusConfig = getStatusConfig(project.status);
+        return (
+          <Col xs={24} sm={12} lg={8} xl={6} key={project.id} role="gridcell">
+            <Card
+              className="shadow-lg border-0 rounded-2xl hover:shadow-xl transition-all duration-300 focus-within:ring-2 focus-within:ring-blue-500"
+              actions={[
+                <Tooltip title={`Visit ${project.project_name} website`} key="visit">
+                  <Button
+                    type="link"
+                    icon={<ExternalLink size={16} />}
+                    onClick={() => window.open(project.website_url, '_blank', 'noopener,noreferrer')}
+                    className="flex items-center justify-center gap-2"
+                    aria-label={`Visit ${project.project_name} website (opens in new tab)`}
+                  >
+                    Visit Site
+                  </Button>
+                </Tooltip>
+              ]}
+              tabIndex={0}
+              role="article"
+              aria-labelledby={`project-title-${project.id}`}
+              aria-describedby={`project-desc-${project.id}`}
+            >
+              <div className="space-y-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <Title 
+                      level={5} 
+                      className="mb-1 truncate" 
+                      id={`project-title-${project.id}`}
+                      title={project.project_name}
                     >
-                      {project.status.replace('_', ' ').toUpperCase()}
-                    </Tag>
+                      {project.project_name}
+                    </Title>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge
+                        color={statusConfig.color}
+                        text={
+                          <span className="flex items-center gap-1 text-xs font-medium">
+                            {statusConfig.icon}
+                            {statusConfig.label}
+                          </span>
+                        }
+                        aria-label={statusConfig.ariaLabel}
+                      />
+                    </div>
                   </div>
-                </div>
-                <Avatar
-                  size="small"
-                  icon={getProjectTypeIcon(project.project_type)}
-                  style={{ backgroundColor: '#000336' }}
-                />
-              </div>
-
-              <Paragraph 
-                className="text-gray-600 text-sm mb-3"
-                ellipsis={{ rows: 2, tooltip: project.description }}
-              >
-                {project.description}
-              </Paragraph>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Target size={12} className="text-gray-400 flex-shrink-0" />
-                  <Text className="text-gray-600 text-xs line-clamp-1">
-                    {project.project_goal.goal}
-                  </Text>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <Globe size={12} className="text-gray-400 flex-shrink-0" />
-                  <Text className="text-gray-600 text-xs capitalize">
-                    {project.project_type.replace('_', ' ')}
-                  </Text>
+                  <Tooltip title={`${project.project_type.replace('_', ' ')} project`}>
+                    <Avatar
+                      size="small"
+                      icon={getProjectTypeIcon(project.project_type)}
+                      style={{ backgroundColor: '#000336' }}
+                      aria-label={`${project.project_type.replace('_', ' ')} project type`}
+                    />
+                  </Tooltip>
                 </div>
 
-                {project.created_on && (
-                  <div className="flex items-center gap-2">
-                    <Calendar size={12} className="text-gray-400 flex-shrink-0" />
-                    <Text className="text-gray-500 text-xs">
-                      {formatDate(project.created_on)}
+                <Paragraph 
+                  className="text-gray-600 text-sm mb-3"
+                  ellipsis={{ rows: 2, tooltip: project.description }}
+                  id={`project-desc-${project.id}`}
+                >
+                  {project.description}
+                </Paragraph>
+
+                <div className="space-y-2" role="list" aria-label="Project details">
+                  <div className="flex items-center gap-2" role="listitem">
+                    <Target size={12} className="text-gray-400 flex-shrink-0" aria-hidden="true" />
+                    <Text className="text-gray-600 text-xs truncate" title={project.project_goal.goal}>
+                      <span className="sr-only">Goal: </span>
+                      {project.project_goal.goal}
                     </Text>
                   </div>
-                )}
+                  
+                  <div className="flex items-center gap-2" role="listitem">
+                    <Globe size={12} className="text-gray-400 flex-shrink-0" aria-hidden="true" />
+                    <Text className="text-gray-600 text-xs capitalize">
+                      <span className="sr-only">Type: </span>
+                      {project.project_type.replace('_', ' ')}
+                    </Text>
+                  </div>
+
+                  {project.created_on && (
+                    <div className="flex items-center gap-2" role="listitem">
+                      <Calendar size={12} className="text-gray-400 flex-shrink-0" aria-hidden="true" />
+                      <Text className="text-gray-500 text-xs">
+                        <span className="sr-only">Created on: </span>
+                        {formatDate(project.created_on)}
+                      </Text>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          </Card>
-        </Col>
-      ))}
+            </Card>
+          </Col>
+        );
+      })}
     </Row>
   );
 
   const renderListView = () => (
     <List
       itemLayout="horizontal"
-      dataSource={projects}
-      renderItem={(project) => (
-        <List.Item
-          actions={[
-            <Button
-              type="link"
-              icon={<ExternalLink size={16} />}
-              onClick={() => window.open(project.website_url, '_blank')}
-            >
-              Visit Site
-            </Button>
-          ]}
-          className="bg-white p-6 mb-4 rounded-2xl shadow-lg border-0"
-        >
-          <List.Item.Meta
-            avatar={
-              <Avatar
-                size="large"
-                icon={getProjectTypeIcon(project.project_type)}
-                style={{ backgroundColor: '#000336' }}
-              />
-            }
-            title={
-              <div className="flex items-center gap-3">
-                <Title level={4} className="mb-0">
-                  {project.project_name}
-                </Title>
-                <Tag color={getStatusColor(project.status)}>
-                  {project.status.replace('_', ' ').toUpperCase()}
-                </Tag>
-              </div>
-            }
-            description={
-              <div className="space-y-2">
-                <Paragraph className="text-gray-600 mb-2">
-                  {project.description}
-                </Paragraph>
-                <Space size="large">
-                  <div className="flex items-center gap-2">
-                    <Target size={14} className="text-gray-400" />
-                    <Text className="text-gray-600">
-                      {project.project_goal.goal}
-                    </Text>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Globe size={14} className="text-gray-400" />
-                    <Text className="text-gray-600 capitalize">
-                      {project.project_type.replace('_', ' ')}
-                    </Text>
-                  </div>
-                  {project.created_on && (
+      dataSource={filteredProjects}
+      role="list"
+      aria-label="Projects list view"
+      renderItem={(project, index) => {
+        const statusConfig = getStatusConfig(project.status);
+        return (
+          <List.Item
+            actions={[
+              <Tooltip title={`Visit ${project.project_name} website`} key="visit">
+                <Button
+                  type="link"
+                  icon={<ExternalLink size={16} />}
+                  onClick={() => window.open(project.website_url, '_blank', 'noopener,noreferrer')}
+                  aria-label={`Visit ${project.project_name} website (opens in new tab)`}
+                >
+                  Visit Site
+                </Button>
+              </Tooltip>
+            ]}
+            className="bg-white p-6 mb-4 rounded-2xl shadow-lg border-0 hover:shadow-xl transition-all duration-300 focus-within:ring-2 focus-within:ring-blue-500"
+            role="listitem"
+            tabIndex={0}
+            aria-labelledby={`list-project-title-${project.id}`}
+            aria-describedby={`list-project-desc-${project.id}`}
+          >
+            <List.Item.Meta
+              avatar={
+                <Tooltip title={`${project.project_type.replace('_', ' ')} project`}>
+                  <Avatar
+                    size="large"
+                    icon={getProjectTypeIcon(project.project_type)}
+                    style={{ backgroundColor: '#000336' }}
+                    aria-label={`${project.project_type.replace('_', ' ')} project type`}
+                  />
+                </Tooltip>
+              }
+              title={
+                <div className="flex items-center gap-3 flex-wrap">
+                  <Title level={4} className="mb-0" id={`list-project-title-${project.id}`}>
+                    {project.project_name}
+                  </Title>
+                  <Badge
+                    color={statusConfig.color}
+                    text={
+                      <span className="flex items-center gap-1 font-medium">
+                        {statusConfig.icon}
+                        {statusConfig.label}
+                      </span>
+                    }
+                    aria-label={statusConfig.ariaLabel}
+                  />
+                </div>
+              }
+              description={
+                <div className="space-y-3">
+                  <Paragraph 
+                    className="text-gray-600 mb-2" 
+                    id={`list-project-desc-${project.id}`}
+                  >
+                    {project.description}
+                  </Paragraph>
+                  <Space size="large" wrap>
                     <div className="flex items-center gap-2">
-                      <Calendar size={14} className="text-gray-400" />
-                      <Text className="text-gray-500">
-                        Created: {formatDate(project.created_on)}
+                      <Target size={14} className="text-gray-400" aria-hidden="true" />
+                      <Text className="text-gray-600">
+                        <span className="sr-only">Goal: </span>
+                        {project.project_goal.goal}
                       </Text>
                     </div>
-                  )}
-                </Space>
-              </div>
-            }
-          />
-        </List.Item>
-      )}
+                    <div className="flex items-center gap-2">
+                      <Globe size={14} className="text-gray-400" aria-hidden="true" />
+                      <Text className="text-gray-600 capitalize">
+                        <span className="sr-only">Type: </span>
+                        {project.project_type.replace('_', ' ')}
+                      </Text>
+                    </div>
+                    {project.created_on && (
+                      <div className="flex items-center gap-2">
+                        <Calendar size={14} className="text-gray-400" aria-hidden="true" />
+                        <Text className="text-gray-500">
+                          <span className="sr-only">Created: </span>
+                          Created: {formatDate(project.created_on)}
+                        </Text>
+                      </div>
+                    )}
+                  </Space>
+                </div>
+              }
+            />
+          </List.Item>
+        );
+      }}
     />
   );
+
+  const hasActiveFilters = searchTerm || statusFilter !== 'all' || sortBy !== 'date';
 
   return (
     <DashboardLayout>
       <div className="mb-8">
-        <div className="flex justify-between items-start mb-4">
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-6">
           <div>
             <Title level={1} className="mb-2">
               Projects
@@ -255,41 +433,118 @@ export const ProjectsPage: React.FC = () => {
             </Text>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <Button
               type="primary"
               size="large"
               icon={<Plus size={18} />}
               onClick={() => setDrawerOpen(true)}
-              className="flex items-center gap-2"
+              className="flex items-center justify-center gap-2"
               style={{ 
                 backgroundColor: '#00BFA5',
                 borderColor: '#00BFA5',
               }}
+              aria-label="Add new project"
             >
               Add Project
             </Button>
             
             <Radio.Group
               value={viewType}
-              onChange={(e) => setViewType(e.target.value)}
+              onChange={(e) => {
+                setViewType(e.target.value);
+                message.info(`Switched to ${e.target.value} view`);
+              }}
               buttonStyle="solid"
+              aria-label="View type selection"
             >
-              <Radio.Button value="grid">
-                <Grid size={16} className="mr-2" />
+              <Radio.Button value="grid" aria-label="Grid view">
+                <Grid size={16} className="mr-2" aria-hidden="true" />
                 Grid
               </Radio.Button>
-              <Radio.Button value="list">
-                <ListIcon size={16} className="mr-2" />
+              <Radio.Button value="list" aria-label="List view">
+                <ListIcon size={16} className="mr-2" aria-hidden="true" />
                 List
               </Radio.Button>
             </Radio.Group>
           </div>
         </div>
 
+        {/* Search and Filter Controls */}
+        <Card className="mb-6 shadow-sm">
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex-1">
+              <AntSearch
+                placeholder="Search projects by name, description, or goal..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                size="large"
+                prefix={<Search size={16} className="text-gray-400" />}
+                allowClear
+                aria-label="Search projects"
+              />
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Select
+                value={statusFilter}
+                onChange={(value) => {
+                  setStatusFilter(value);
+                  message.info(value === 'all' ? 'Showing all projects' : `Filtered by ${value} status`);
+                }}
+                size="large"
+                style={{ minWidth: 140 }}
+                aria-label="Filter by status"
+                suffixIcon={<Filter size={16} />}
+              >
+                <Option value="all">All Status</Option>
+                {getUniqueStatuses().map(status => (
+                  <Option key={status.value} value={status.value}>
+                    {status.label}
+                  </Option>
+                ))}
+              </Select>
+
+              <Select
+                value={sortBy}
+                onChange={(value) => {
+                  setSortBy(value);
+                  message.info(`Sorted by ${value}`);
+                }}
+                size="large"
+                style={{ minWidth: 140 }}
+                aria-label="Sort projects"
+                suffixIcon={<SortAsc size={16} />}
+              >
+                <Option value="date">Date Created</Option>
+                <Option value="name">Name</Option>
+                <Option value="status">Status</Option>
+              </Select>
+
+              {hasActiveFilters && (
+                <Button
+                  onClick={clearFilters}
+                  size="large"
+                  aria-label="Clear all filters"
+                >
+                  Clear Filters
+                </Button>
+              )}
+            </div>
+          </div>
+        </Card>
+
+        {/* Results Summary */}
         {projects.length > 0 && (
-          <div className="flex items-center gap-4 text-sm text-gray-500">
-            <span>Total: {projects.length} projects</span>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4 text-sm text-gray-500">
+              <span role="status" aria-live="polite">
+                Showing {filteredProjects.length} of {projects.length} projects
+              </span>
+              {hasActiveFilters && (
+                <Badge count="Filtered" style={{ backgroundColor: '#1890ff' }} />
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -303,31 +558,54 @@ export const ProjectsPage: React.FC = () => {
       )}
 
       {loading ? (
-        <div className="flex justify-center items-center py-20">
+        <div className="flex flex-col justify-center items-center py-20" role="status" aria-live="polite">
           <Spin size="large" />
+          <Text className="mt-4 text-gray-500">Loading projects...</Text>
         </div>
-      ) : projects.length === 0 ? (
+      ) : filteredProjects.length === 0 ? (
         <Card className="text-center py-20">
           <Empty
             image={<FolderOpen size={64} className="mx-auto text-gray-300" />}
             description={
               <div>
                 <Title level={4} className="text-gray-400 mb-2">
-                  No Projects Found
+                  {projects.length === 0 ? 'No Projects Found' : 'No Matching Projects'}
                 </Title>
                 <Text className="text-gray-500">
-                  You haven't created any projects yet. Start by creating your first project.
+                  {projects.length === 0 
+                    ? "You haven't created any projects yet. Start by creating your first project."
+                    : "Try adjusting your search or filter criteria to find projects."
+                  }
                 </Text>
               </div>
             }
           >
-            <Button type="primary" size="large" className="mt-4">
-              Create Project
-            </Button>
+            {projects.length === 0 ? (
+              <Button 
+                type="primary" 
+                size="large" 
+                className="mt-4"
+                onClick={() => setDrawerOpen(true)}
+                style={{ 
+                  backgroundColor: '#00BFA5',
+                  borderColor: '#00BFA5',
+                }}
+              >
+                Create Project
+              </Button>
+            ) : (
+              <Button 
+                size="large" 
+                className="mt-4"
+                onClick={clearFilters}
+              >
+                Clear Filters
+              </Button>
+            )}
           </Empty>
         </Card>
       ) : (
-        <div>
+        <div role="main" aria-label="Projects content">
           {viewType === 'grid' ? renderGridView() : renderListView()}
         </div>
       )}

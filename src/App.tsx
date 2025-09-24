@@ -5,6 +5,7 @@ import { RegistrationPage } from './modules/customer/pages/RegistrationPage';
 import { LoginPage } from './modules/customer/pages/LoginPage';
 import { DashboardPage } from './modules/customer/pages/DashboardPage';
 import { ProjectsPage } from './modules/customer/pages/ProjectsPage';
+import { ProjectDetailPage } from './modules/customer/pages/ProjectDetailPage';
 import { useAuthStore } from './store/authStore';
 
 const theme = {
@@ -62,6 +63,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ProjectsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/customer/projects/:id" 
+              element={
+                <ProtectedRoute>
+                  <ProjectDetailPage />
                 </ProtectedRoute>
               } 
             />

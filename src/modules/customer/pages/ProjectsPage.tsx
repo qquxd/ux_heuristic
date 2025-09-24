@@ -237,6 +237,16 @@ export const ProjectsPage: React.FC = () => {
                   >
                     Visit Site
                   </Button>
+                </Tooltip>,
+                <Tooltip title="View project details" key="details">
+                  <Button
+                    type="link"
+                    onClick={() => navigate(`/customer/projects/${project.id}`)}
+                    className="flex items-center justify-center gap-2"
+                    aria-label={`View ${project.project_name} details`}
+                  >
+                    View Details
+                  </Button>
                 </Tooltip>
               ]}
               tabIndex={0}
@@ -247,11 +257,12 @@ export const ProjectsPage: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
-                    <Title 
+                    <Title
                       level={5} 
-                      className="mb-1 truncate" 
+                      className="mb-1 truncate cursor-pointer hover:text-blue-600 transition-colors" 
                       id={`project-title-${project.id}`}
                       title={project.project_name}
+                      onClick={() => navigate(`/customer/projects/${project.id}`)}
                     >
                       {project.project_name}
                     </Title>
@@ -358,7 +369,12 @@ export const ProjectsPage: React.FC = () => {
             />
           </Tooltip>
           <div className="min-w-0 flex-1">
-            <Text strong className="block truncate" title={name}>
+            <Text 
+              strong 
+              className="block truncate cursor-pointer hover:text-blue-600 transition-colors" 
+              title={name}
+              onClick={() => navigate(`/customer/projects/${record.id}`)}
+            >
               {name}
             </Text>
             <Text className="text-gray-500 text-xs capitalize">
@@ -457,17 +473,29 @@ export const ProjectsPage: React.FC = () => {
       width: 100,
       fixed: 'right',
       render: (_, record: Project) => (
-        <Tooltip title={`Visit ${record.project_name} website`}>
-          <Button
-            type="link"
-            icon={<ExternalLink size={16} />}
-            onClick={() => window.open(record.website_url, '_blank', 'noopener,noreferrer')}
-            aria-label={`Visit ${record.project_name} website (opens in new tab)`}
-            className="flex items-center justify-center"
-          >
-            Visit
-          </Button>
-        </Tooltip>
+        <div className="flex items-center gap-2">
+          <Tooltip title="View project details">
+            <Button
+              type="link"
+              onClick={() => navigate(`/customer/projects/${record.id}`)}
+              aria-label={`View ${record.project_name} details`}
+              className="flex items-center justify-center p-0"
+            >
+              View
+            </Button>
+          </Tooltip>
+          <Tooltip title={`Visit ${record.project_name} website`}>
+            <Button
+              type="link"
+              icon={<ExternalLink size={16} />}
+              onClick={() => window.open(record.website_url, '_blank', 'noopener,noreferrer')}
+              aria-label={`Visit ${record.project_name} website (opens in new tab)`}
+              className="flex items-center justify-center p-0"
+            >
+              Visit
+            </Button>
+          </Tooltip>
+        </div>
       ),
     },
   ];

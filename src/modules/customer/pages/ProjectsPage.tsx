@@ -75,10 +75,10 @@ export const ProjectsPage: React.FC = () => {
       setLoading(true);
       setError(null);
       const response = await ProjectService.getProjects();
-      setProjects(response.results);
+      setProjects(response.results || []);
       
       // Announce to screen readers
-      message.success(`${response.results.length} projects loaded successfully`, 2);
+      message.success(`${(response.results || []).length} projects loaded successfully`, 2);
     } catch (err: any) {
       setError(err as ErrorResponse);
       message.error('Failed to load projects. Please try again.');
@@ -617,7 +617,7 @@ export const ProjectsPage: React.FC = () => {
         </Card>
 
         {/* Results Summary */}
-        {projects.length > 0 && (
+        {projects && projects.length > 0 && (
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4 text-sm text-gray-500">
               <span role="status" aria-live="polite">
@@ -644,17 +644,17 @@ export const ProjectsPage: React.FC = () => {
           <Spin size="large" />
           <Text className="mt-4 text-gray-500">Loading projects...</Text>
         </div>
-      ) : filteredProjects.length === 0 ? (
+      ) : !projects || filteredProjects.length === 0 ? (
         <Card className="text-center py-20">
           <Empty
             image={<FolderOpen size={64} className="mx-auto text-gray-300" />}
             description={
               <div>
                 <Title level={4} className="text-gray-400 mb-2">
-                  {projects.length === 0 ? 'No Projects Found' : 'No Matching Projects'}
+                  {!projects || projects.length === 0 ? 'No Projects Found' : 'No Matching Projects'}
                 </Title>
                 <Text className="text-gray-500">
-                  {projects.length === 0 
+                  {!projects || projects.length === 0 
                     ? "You haven't created any projects yet. Start by creating your first project."
                     : "Try adjusting your search or filter criteria to find projects."
                   }
@@ -662,7 +662,7 @@ export const ProjectsPage: React.FC = () => {
               </div>
             }
           >
-            {projects.length === 0 ? (
+            {!projects || projects.length === 0 ? (
               <Button 
                 type="primary" 
                 size="large" 

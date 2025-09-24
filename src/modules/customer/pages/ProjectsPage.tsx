@@ -211,7 +211,7 @@ export const ProjectsPage: React.FC = () => {
   };
 
   const getUniqueStatuses = () => {
-    const statuses = [...new Set(projects.map(p => p.status.toLowerCase()))];
+    const statuses = [...new Set((projects || []).map(p => p.status.toLowerCase()))];
     return statuses.map(status => ({
       value: status,
       label: status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())

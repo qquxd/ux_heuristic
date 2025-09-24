@@ -158,7 +158,7 @@ export class ProjectService {
 
   static async findPages(projectId: number): Promise<FindPagesResponse> {
     try {
-      const response = await apiService.authPost<FindPagesResponse>(`/projects/${projectId}/find-pages/`);
+      const response = await apiService.authPost<FindPagesResponse>(`/projects/${projectId}/find-url/`);
       return response.data;
     } catch (error: any) {
       const errorResponse: ErrorResponse = {

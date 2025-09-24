@@ -37,6 +37,17 @@ export class ProjectService {
   static async getProjects(): Promise<ProjectsResponse> {
     try {
       const response = await apiService.authGet<ProjectsResponse>('/projects/');
+      
+      // Handle both array and object responses
+      if (Array.isArray(response.data)) {
+        return {
+          count: response.data.length,
+          next: null,
+          previous: null,
+          results: response.data
+        };
+      }
+      
       return response.data;
     } catch (error: any) {
       const errorResponse: ErrorResponse = {

@@ -197,6 +197,50 @@ export const ProjectDetailPage: React.FC = () => {
       sorter: (a, b) => a.page_name.localeCompare(b.page_name),
     },
     {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      width: 120,
+      render: (status: string) => {
+        const getStatusColor = (status: string) => {
+          switch (status?.toLowerCase()) {
+            case 'active':
+            case 'success':
+              return '#00BFA5';
+            case 'pending':
+            case 'processing':
+              return '#FFD700';
+            case 'error':
+            case 'failed':
+              return '#ff4d4f';
+            default:
+              return '#666';
+          }
+        };
+        
+        return (
+          <Badge
+            color={getStatusColor(status)}
+            text={
+              <span className="capitalize font-medium">
+                {status || 'Unknown'}
+              </span>
+            }
+          />
+        );
+      },
+      filters: [
+        { text: 'Active', value: 'active' },
+        { text: 'Success', value: 'success' },
+        { text: 'Pending', value: 'pending' },
+        { text: 'Processing', value: 'processing' },
+        { text: 'Error', value: 'error' },
+        { text: 'Failed', value: 'failed' },
+      ],
+      onFilter: (value, record) => record.status?.toLowerCase() === value,
+      sorter: (a, b) => (a.status || '').localeCompare(b.status || ''),
+    },
+    {
       title: 'URL',
       dataIndex: 'page_url',
       key: 'page_url',

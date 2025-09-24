@@ -10,14 +10,15 @@ import {
   Spin, 
   Empty,
   Radio,
-  List,
+  Table,
   Avatar,
   Divider,
   Input,
   Select,
   Tooltip,
   Badge,
-  message
+  message,
+  TableColumnsType
 } from 'antd';
 import { 
   FolderOpen, 
@@ -25,7 +26,7 @@ import {
   Target, 
   Calendar,
   Grid,
-  List as ListIcon,
+  Table as TableIcon,
   ExternalLink,
   Plus,
   Search,
@@ -321,102 +322,155 @@ export const ProjectsPage: React.FC = () => {
   );
 
   const renderListView = () => (
-    <List
-      itemLayout="horizontal"
+    <Table<Project>
+      columns={getTableColumns()}
       dataSource={filteredProjects}
-      role="list"
-      aria-label="Projects list view"
-      renderItem={(project, index) => {
-        const statusConfig = getStatusConfig(project.status);
-        return (
-          <List.Item
-            actions={[
-              <Tooltip title={`Visit ${project.project_name} website`} key="visit">
-                <Button
-                  type="link"
-                  icon={<ExternalLink size={16} />}
-                  onClick={() => window.open(project.website_url, '_blank', 'noopener,noreferrer')}
-                  aria-label={`Visit ${project.project_name} website (opens in new tab)`}
-                >
-                  Visit Site
-                </Button>
-              </Tooltip>
-            ]}
-            className="bg-white p-6 mb-4 rounded-2xl shadow-lg border-0 hover:shadow-xl transition-all duration-300 focus-within:ring-2 focus-within:ring-blue-500"
-            role="listitem"
-            tabIndex={0}
-            aria-labelledby={`list-project-title-${project.id}`}
-            aria-describedby={`list-project-desc-${project.id}`}
-          >
-            <List.Item.Meta
-              avatar={
-                <Tooltip title={`${project.project_type.replace('_', ' ')} project`}>
-                  <Avatar
-                    size="large"
-                    icon={getProjectTypeIcon(project.project_type)}
-                    style={{ backgroundColor: '#000336' }}
-                    aria-label={`${project.project_type.replace('_', ' ')} project type`}
-                  />
-                </Tooltip>
-              }
-              title={
-                <div className="flex items-center gap-3 flex-wrap">
-                  <Title level={4} className="mb-0" id={`list-project-title-${project.id}`}>
-                    {project.project_name}
-                  </Title>
-                  <Badge
-                    color={statusConfig.color}
-                    text={
-                      <span className="flex items-center gap-1 font-medium">
-                        {statusConfig.icon}
-                        {statusConfig.label}
-                      </span>
-                    }
-                    aria-label={statusConfig.ariaLabel}
-                  />
-                </div>
-              }
-              description={
-                <div className="space-y-3">
-                  <Paragraph 
-                    className="text-gray-600 mb-2" 
-                    id={`list-project-desc-${project.id}`}
-                  >
-                    {project.description}
-                  </Paragraph>
-                  <Space size="large" wrap>
-                    <div className="flex items-center gap-2">
-                      <Target size={14} className="text-gray-400" aria-hidden="true" />
-                      <Text className="text-gray-600">
-                        <span className="sr-only">Goal: </span>
-                        {project.project_goal.goal}
-                      </Text>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Globe size={14} className="text-gray-400" aria-hidden="true" />
-                      <Text className="text-gray-600 capitalize">
-                        <span className="sr-only">Type: </span>
-                        {project.project_type.replace('_', ' ')}
-                      </Text>
-                    </div>
-                    {project.created_on && (
-                      <div className="flex items-center gap-2">
-                        <Calendar size={14} className="text-gray-400" aria-hidden="true" />
-                        <Text className="text-gray-500">
-                          <span className="sr-only">Created: </span>
-                          Created: {formatDate(project.created_on)}
-                        </Text>
-                      </div>
-                    )}
-                  </Space>
-                </div>
-              }
-            />
-          </List.Item>
-        );
+      rowKey="id"
+      pagination={{
+        pageSize: 10,
+        showSizeChanger: true,
+        showQuickJumper: true,
+        showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} projects`,
       }}
+      scroll={{ x: 800 }}
+      className="bg-white rounded-2xl shadow-lg"
+      role="list"
+      aria-label="Projects table view"
+      size="middle"
     />
   );
+
+  const getTableColumns = (): TableColumnsType<Project> => [
+    {
+      title: 'Project',
+      dataIndex: 'project_name',
+      key: 'project_name',
+      width: 200,
+      fixed: 'left',
+      render: (name: string, record: Project) => (
+        <div className="flex items-center gap-3">
+          <Tooltip title={`${record.project_type.replace('_', ' ')} project`}>
+            <Avatar
+              size="default"
+              icon={getProjectTypeIcon(record.project_type)}
+              style={{ backgroundColor: '#000336' }}
+              aria-label={`${record.project_type.replace('_', ' ')} project type`}
+            />
+          </Tooltip>
+          <div className="min-w-0 flex-1">
+            <Text strong className="block truncate" title={name}>
+              {name}
+            </Text>
+            <Text className="text-gray-500 text-xs capitalize">
+              {record.project_type.replace('_', ' ')}
+            </Text>
+          </div>
+        </div>
+      ),
+      sorter: (a, b) => a.project_name.localeCompare(b.project_name),
+    },
+    {
+      title: 'Description',
+      dataIndex: 'description',
+      key: 'description',
+      width: 250,
+      render: (description: string) => (
+        <Tooltip title={description}>
+          <Text className="text-gray-600 block" style={{ 
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            lineHeight: '1.4em',
+            maxHeight: '2.8em'
+          }}>
+            {description}
+          </Text>
+        </Tooltip>
+      ),
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      width: 130,
+      render: (status: string) => {
+        const statusConfig = getStatusConfig(status);
+        return (
+          <Badge
+            color={statusConfig.color}
+            text={
+              <span className="flex items-center gap-1 font-medium">
+                {statusConfig.icon}
+                {statusConfig.label}
+              </span>
+            }
+            aria-label={statusConfig.ariaLabel}
+          />
+        );
+      },
+      filters: getUniqueStatuses().map(status => ({
+        text: status.label,
+        value: status.value,
+      })),
+      onFilter: (value, record) => record.status.toLowerCase() === value,
+      sorter: (a, b) => a.status.localeCompare(b.status),
+    },
+    {
+      title: 'Goal',
+      dataIndex: ['project_goal', 'goal'],
+      key: 'goal',
+      width: 200,
+      render: (goal: string) => (
+        <div className="flex items-center gap-2">
+          <Target size={14} className="text-gray-400 flex-shrink-0" aria-hidden="true" />
+          <Tooltip title={goal}>
+            <Text className="text-gray-600 truncate">
+              {goal}
+            </Text>
+          </Tooltip>
+        </div>
+      ),
+    },
+    {
+      title: 'Created',
+      dataIndex: 'created_on',
+      key: 'created_on',
+      width: 120,
+      render: (date: string) => (
+        <div className="flex items-center gap-2">
+          <Calendar size={14} className="text-gray-400" aria-hidden="true" />
+          <Text className="text-gray-500 text-sm">
+            {formatDate(date)}
+          </Text>
+        </div>
+      ),
+      sorter: (a, b) => {
+        if (!a.created_on || !b.created_on) return 0;
+        return new Date(a.created_on).getTime() - new Date(b.created_on).getTime();
+      },
+      defaultSortOrder: 'descend',
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      width: 100,
+      fixed: 'right',
+      render: (_, record: Project) => (
+        <Tooltip title={`Visit ${record.project_name} website`}>
+          <Button
+            type="link"
+            icon={<ExternalLink size={16} />}
+            onClick={() => window.open(record.website_url, '_blank', 'noopener,noreferrer')}
+            aria-label={`Visit ${record.project_name} website (opens in new tab)`}
+            className="flex items-center justify-center"
+          >
+            Visit
+          </Button>
+        </Tooltip>
+      ),
+    },
+  ];
 
   const hasActiveFilters = searchTerm || statusFilter !== 'all' || sortBy !== 'date';
 
@@ -453,7 +507,7 @@ export const ProjectsPage: React.FC = () => {
               value={viewType}
               onChange={(e) => {
                 setViewType(e.target.value);
-                message.info(`Switched to ${e.target.value} view`);
+                message.info(`Switched to ${e.target.value === 'list' ? 'table' : e.target.value} view`);
               }}
               buttonStyle="solid"
               aria-label="View type selection"
@@ -463,8 +517,8 @@ export const ProjectsPage: React.FC = () => {
                 Grid
               </Radio.Button>
               <Radio.Button value="list" aria-label="List view">
-                <ListIcon size={16} className="mr-2" aria-hidden="true" />
-                List
+                <TableIcon size={16} className="mr-2" aria-hidden="true" />
+                Table
               </Radio.Button>
             </Radio.Group>
           </div>

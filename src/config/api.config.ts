@@ -3,6 +3,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 interface ApiConfig {
   baseURL: string;
   timeout: number;
+  longTimeout: number;
 }
 
 class ApiService {
@@ -106,11 +107,20 @@ class ApiService {
   public authDelete<T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return this.authApi.delete(url, config);
   }
+
+  // Special method for long-running requests (like find-url)
+  public authGetLongTimeout<T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+    return this.authApi.get(url, {
+      ...config,
+      timeout: apiConfig.longTimeout,
+    });
+  }
 }
 
 const apiConfig: ApiConfig = {
   baseURL: import.meta.env.VITE_REACT_APP_API_URL || 'http://localhost:8000/api',
-  timeout: 10000,
+  timeout: 10000, // 10 seconds for regular requests
+  longTimeout: 45000, // 45 seconds for long-running requests
 };
 
 export const apiService = new ApiService(apiConfig);

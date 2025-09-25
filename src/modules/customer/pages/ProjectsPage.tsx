@@ -234,7 +234,7 @@ export const ProjectsPage: React.FC = () => {
                     type="link"
                     icon={<ExternalLink size={16} />}
                     onClick={() => window.open(project.website_url, '_blank', 'noopener,noreferrer')}
-                    className="flex items-center justify-center gap-2"
+                    className="flex items-center justify-center gap-2 text-base font-medium"
                     aria-label={`Visit ${project.project_name} website (opens in new tab)`}
                   >
                     Visit Site
@@ -244,7 +244,7 @@ export const ProjectsPage: React.FC = () => {
                   <Button
                     type="link"
                     onClick={() => navigate(`/customer/projects/${project.id}`)}
-                    className="flex items-center justify-center gap-2"
+                    className="flex items-center justify-center gap-2 text-base font-medium"
                     aria-label={`View ${project.project_name} details`}
                   >
                     View Details
@@ -260,8 +260,8 @@ export const ProjectsPage: React.FC = () => {
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <Title
-                      level={5} 
-                      className="mb-1 truncate cursor-pointer hover:text-blue-600 transition-colors" 
+                      level={4} 
+                      className="mb-2 truncate cursor-pointer hover:text-blue-600 transition-colors text-lg font-semibold" 
                       id={`project-title-${project.id}`}
                       title={project.project_name}
                       onClick={() => navigate(`/customer/projects/${project.id}`)}
@@ -292,7 +292,7 @@ export const ProjectsPage: React.FC = () => {
                 </div>
 
                 <Paragraph 
-                  className="text-gray-600 text-sm mb-3"
+                  className="text-gray-600 text-base mb-4 leading-relaxed"
                   ellipsis={{ rows: 2, tooltip: project.description }}
                   id={`project-desc-${project.id}`}
                 >
@@ -302,7 +302,7 @@ export const ProjectsPage: React.FC = () => {
                 <div className="space-y-2" role="list" aria-label="Project details">
                   <div className="flex items-center gap-2" role="listitem">
                     <Target size={12} className="text-gray-400 flex-shrink-0" aria-hidden="true" />
-                    <Text className="text-gray-600 text-xs truncate" title={project.project_goal.goal}>
+                    <Text className="text-gray-600 text-sm truncate" title={project.project_goal.goal}>
                       <span className="sr-only">Goal: </span>
                       {project.project_goal.goal}
                     </Text>
@@ -310,7 +310,7 @@ export const ProjectsPage: React.FC = () => {
                   
                   <div className="flex items-center gap-2" role="listitem">
                     <Globe size={12} className="text-gray-400 flex-shrink-0" aria-hidden="true" />
-                    <Text className="text-gray-600 text-xs capitalize">
+                    <Text className="text-gray-600 text-sm capitalize">
                       <span className="sr-only">Type: </span>
                       {project.project_type.replace('_', ' ')}
                     </Text>
@@ -319,7 +319,7 @@ export const ProjectsPage: React.FC = () => {
                   {project.created_on && (
                     <div className="flex items-center gap-2" role="listitem">
                       <Calendar size={12} className="text-gray-400 flex-shrink-0" aria-hidden="true" />
-                      <Text className="text-gray-500 text-xs">
+                      <Text className="text-gray-500 text-sm">
                         <span className="sr-only">Created on: </span>
                         {formatDate(project.created_on)}
                       </Text>
@@ -374,12 +374,13 @@ export const ProjectsPage: React.FC = () => {
             <Text 
               strong 
               className="block truncate cursor-pointer hover:text-blue-600 transition-colors" 
+              style={{ fontSize: '16px' }}
               title={name}
               onClick={() => navigate(`/customer/projects/${record.id}`)}
             >
               {name}
             </Text>
-            <Text className="text-gray-500 text-xs capitalize">
+            <Text className="text-gray-500 text-sm capitalize">
               {record.project_type.replace('_', ' ')}
             </Text>
           </div>
@@ -394,7 +395,7 @@ export const ProjectsPage: React.FC = () => {
       width: 250,
       render: (description: string) => (
         <Tooltip title={description}>
-          <Text className="text-gray-600 block" style={{ 
+          <Text className="text-gray-600 block text-sm" style={{ 
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
@@ -443,7 +444,7 @@ export const ProjectsPage: React.FC = () => {
         <div className="flex items-center gap-2">
           <Target size={14} className="text-gray-400 flex-shrink-0" aria-hidden="true" />
           <Tooltip title={goal}>
-            <Text className="text-gray-600 truncate">
+            <Text className="text-gray-600 truncate text-sm">
               {goal}
             </Text>
           </Tooltip>
@@ -458,7 +459,7 @@ export const ProjectsPage: React.FC = () => {
       render: (date: string) => (
         <div className="flex items-center gap-2">
           <Calendar size={14} className="text-gray-400" aria-hidden="true" />
-          <Text className="text-gray-500 text-sm">
+          <Text className="text-gray-500 text-sm font-medium">
             {formatDate(date)}
           </Text>
         </div>
@@ -509,10 +510,10 @@ export const ProjectsPage: React.FC = () => {
       <div className="mb-8">
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-6">
           <div>
-            <Title level={1} className="mb-2">
+            <Title level={1} className="mb-3 text-3xl lg:text-4xl font-bold">
               Projects
             </Title>
-            <Text className="text-gray-600 text-lg">
+            <Text className="text-gray-600 text-xl leading-relaxed">
               Manage and view all your projects
             </Text>
           </div>
@@ -655,7 +656,7 @@ export const ProjectsPage: React.FC = () => {
                 <Title level={4} className="text-gray-400 mb-2">
                   {!projects || projects.length === 0 ? 'No Projects Found' : 'No Matching Projects'}
                 </Title>
-                <Text className="text-gray-500">
+                <Text className="text-gray-500 text-base">
                   {!projects || projects.length === 0 
                     ? "You haven't created any projects yet. Start by creating your first project."
                     : "Try adjusting your search or filter criteria to find projects."

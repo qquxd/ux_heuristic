@@ -421,50 +421,50 @@ export const ProjectDetailPage: React.FC = () => {
   return (
     <DashboardLayout>
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-4 mb-6">
+      <div className="mb-6">
+        <div className="flex items-center gap-4 mb-4">
           <Button
             icon={<ArrowLeft size={16} />}
             onClick={() => navigate('/customer/projects')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 text-base font-medium"
             aria-label="Back to projects"
           >
             Back to Projects
           </Button>
         </div>
 
-        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6 mb-6">
           <div className="flex-1">
-            <Title level={1} className="mb-2">
+            <Title level={1} className="mb-3 text-3xl lg:text-4xl font-bold">
               {project.project_name}
             </Title>
-            <div className="flex items-center gap-4 mb-4">
+            <div className="flex items-center gap-4 mb-3">
               <Badge
                 color={statusConfig.color}
                 text={
-                  <span className="flex items-center gap-1 font-medium">
+                  <span className="flex items-center gap-1 font-medium text-sm">
                     {statusConfig.icon}
                     {statusConfig.label}
                   </span>
                 }
               />
-              <Text className="text-gray-500 capitalize">
+              <Text className="text-gray-500 capitalize text-base font-medium">
                 {project.project_type.replace('_', ' ')}
               </Text>
             </div>
-            <Paragraph className="text-gray-600 text-lg max-w-3xl">
+            <Paragraph className="text-gray-600 text-xl max-w-4xl leading-relaxed">
               {project.description}
             </Paragraph>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 lg:flex-shrink-0">
             <Button
               size="large"
               icon={analyzingPages ? <Loader2 size={18} className="animate-spin" /> : <BarChart3 size={18} />}
               onClick={handleAnalyzePages}
               loading={analyzingPages}
               disabled={analyzingPages || selectedRowKeys.length === 0}
-              className="flex items-center justify-center gap-2"
+              className="flex items-center justify-center gap-2 text-base font-medium"
             >
               {analyzingPages ? 'Analyzing...' : `Analyze${selectedRowKeys.length > 0 ? ` (${selectedRowKeys.length})` : ''}`}
             </Button>
@@ -476,7 +476,7 @@ export const ProjectDetailPage: React.FC = () => {
               onClick={handleFindPages}
               loading={findingPages}
               disabled={findingPages}
-              className="flex items-center justify-center gap-2"
+              className="flex items-center justify-center gap-2 text-base font-medium"
               style={{ 
                 backgroundColor: '#00BFA5',
                 borderColor: '#00BFA5',
@@ -489,13 +489,15 @@ export const ProjectDetailPage: React.FC = () => {
               size="large"
               icon={<Globe size={18} />}
               onClick={() => window.open(project.website_url, '_blank', 'noopener,noreferrer')}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-base font-medium"
             >
               Visit Website
             </Button>
           </div>
         </div>
       </div>
+
+      <div className="mb-8">
 
 
       {/* Two Column Layout */}
@@ -511,7 +513,7 @@ export const ProjectDetailPage: React.FC = () => {
                 >
                   <FileSearch size={20} className="text-white" />
                 </div>
-                <span>Available Pages</span>
+                <span className="text-lg font-semibold">Available Pages</span>
               </div>
             }
             className="shadow-lg border-0 rounded-2xl"
@@ -549,7 +551,7 @@ export const ProjectDetailPage: React.FC = () => {
             {availableRoutes.length > 0 && (
               <div className="mb-4">
                 <div className="flex items-center gap-4">
-                  <Text strong>Filter by Status:</Text>
+                  <Text strong className="text-base">Filter by Status:</Text>
                   <Select
                     value={statusFilter}
                     onChange={(value) => setStatusFilter(value)}
@@ -563,7 +565,7 @@ export const ProjectDetailPage: React.FC = () => {
                       </Option>
                     ))}
                   </Select>
-                  <Text className="text-gray-500 text-sm">
+                  <Text className="text-gray-500 text-base">
                     Showing {filteredRoutes.length} of {availableRoutes.length} pages
                   </Text>
                 </div>
@@ -573,7 +575,7 @@ export const ProjectDetailPage: React.FC = () => {
             {routesLoading ? (
               <div className="flex flex-col justify-center items-center py-12">
                 <Spin size="large" />
-                <Text className="mt-4 text-gray-500">Loading available pages...</Text>
+                <Text className="mt-4 text-gray-500 text-base">Loading available pages...</Text>
               </div>
             ) : filteredRoutes.length === 0 ? (
               <div className="text-center py-12">
@@ -587,7 +589,7 @@ export const ProjectDetailPage: React.FC = () => {
                           : 'No Pages Match Filter'
                         }
                       </Title>
-                      <Text className="text-gray-500">
+                      <Text className="text-gray-500 text-base">
                         {availableRoutes.length === 0
                           ? (hasInitialRoutes 
                             ? "The search didn't find any pages. Try clicking 'Find Pages' to discover new pages."
@@ -627,7 +629,7 @@ export const ProjectDetailPage: React.FC = () => {
             ) : (
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <Text className="text-gray-600">
+                  <Text className="text-gray-600 text-base font-medium">
                     Found {filteredRoutes.length} pages
                     {selectedRowKeys.length > 0 && (
                       <span className="ml-2 text-blue-600">
@@ -639,7 +641,7 @@ export const ProjectDetailPage: React.FC = () => {
                     icon={<RefreshCw size={16} />}
                     onClick={fetchAvailableRoutes}
                     disabled={routesLoading || findingPages}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 text-base font-medium"
                   >
                     Refresh
                   </Button>
@@ -670,29 +672,29 @@ export const ProjectDetailPage: React.FC = () => {
           <div className="space-y-6">
             {/* Project Information */}
             <Card 
-              title="Project Information"
+              title={<span className="text-lg font-semibold">Project Information</span>}
               className="shadow-lg border-0 rounded-2xl"
             >
-              <Descriptions column={1} className="mt-4">
+              <Descriptions column={1} className="mt-4" labelStyle={{ fontSize: '14px', fontWeight: '500' }} contentStyle={{ fontSize: '14px' }}>
                 <Descriptions.Item label="Project Goal">
                   <div className="flex items-center gap-2">
                     <Target size={16} className="text-gray-400" />
-                    <Text>{project.project_goal.goal}</Text>
+                    <Text className="text-sm">{project.project_goal.goal}</Text>
                   </div>
                 </Descriptions.Item>
                 
                 <Descriptions.Item label="Project Type">
-                  <Text className="capitalize">
+                  <Text className="capitalize text-sm">
                     {project.project_type.replace('_', ' ')}
                   </Text>
                 </Descriptions.Item>
 
                 <Descriptions.Item label="Status">
-                  <div className="flex items-center gap-1">
+                  <div>
                     <Badge
                       color={statusConfig.color}
                       text={
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-1 text-sm font-medium">
                           {statusConfig.icon}
                           {statusConfig.label}
                         </span>
@@ -706,7 +708,7 @@ export const ProjectDetailPage: React.FC = () => {
                     type="link"
                     icon={<ExternalLink size={14} />}
                     onClick={() => window.open(project.website_url, '_blank', 'noopener,noreferrer')}
-                    className="p-0 h-auto flex items-center gap-1"
+                    className="p-0 h-auto flex items-center gap-1 text-sm"
                   >
                     {project.website_url}
                   </Button>
@@ -716,7 +718,7 @@ export const ProjectDetailPage: React.FC = () => {
                   <Descriptions.Item label="Created On">
                     <div className="flex items-center gap-2">
                       <Calendar size={16} className="text-gray-400" />
-                      <Text>{formatDate(project.created_on)}</Text>
+                      <Text className="text-sm">{formatDate(project.created_on)}</Text>
                     </div>
                   </Descriptions.Item>
                 )}
@@ -725,42 +727,43 @@ export const ProjectDetailPage: React.FC = () => {
 
             {/* Quick Stats */}
             <Card 
-              title="Quick Stats"
+              title={<span className="text-lg font-semibold">Quick Stats</span>}
               className="shadow-lg border-0 rounded-2xl"
             >
               <Space direction="vertical" size="large" className="w-full">
                 <div className="text-center">
-                  <div className="text-2xl font-bold mb-1" style={{ color: calculateAverageScore() ? (calculateAverageScore()! >= 80 ? '#00BFA5' : calculateAverageScore()! >= 60 ? '#FFD700' : '#ff4d4f') : '#666' }}>
+                  <div className="text-3xl font-bold mb-2" style={{ color: calculateAverageScore() ? (calculateAverageScore()! >= 80 ? '#00BFA5' : calculateAverageScore()! >= 60 ? '#FFD700' : '#ff4d4f') : '#666' }}>
                     {calculateAverageScore() !== null ? `${calculateAverageScore()}/100` : 'N/A'}
                   </div>
-                  <Text className="text-gray-500">Average UX Score</Text>
+                  <Text className="text-gray-500 text-sm font-medium">Average UX Score</Text>
                 </div>
                 
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-800 mb-1">
+                  <div className="text-3xl font-bold text-gray-800 mb-2">
                     {availableRoutes.length}
                   </div>
-                  <Text className="text-gray-500">Available Pages</Text>
+                  <Text className="text-gray-500 text-sm font-medium">Available Pages</Text>
                 </div>
                 
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600 mb-1">
+                  <div className="text-3xl font-bold text-green-600 mb-2">
                     {availableRoutes.filter(route => route.status === 'completed').length}
                   </div>
-                  <Text className="text-gray-500">Analyzed</Text>
+                  <Text className="text-gray-500 text-sm font-medium">Analyzed</Text>
                 </div>
                 
                 <div className="text-center">
-                  <div className="text-2xl font-bold" style={{ color: statusConfig.color }}>
+                  <div className="text-2xl font-bold mb-2" style={{ color: statusConfig.color }}>
                     {statusConfig.label}
                   </div>
-                  <Text className="text-gray-500">Current Status</Text>
+                  <Text className="text-gray-500 text-sm font-medium">Current Status</Text>
                 </div>
               </Space>
             </Card>
           </div>
         </Col>
       </Row>
+      </div>
 
       <PageAnalysisModal
         open={modalOpen}

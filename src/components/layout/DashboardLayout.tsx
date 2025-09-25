@@ -119,7 +119,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
           />
 
           <div className="flex items-center gap-4">
-            <Text className="text-gray-600 hidden sm:block">
+            <Text className="text-gray-600 hidden md:block text-base font-medium">
               Welcome back, {user?.name}
             </Text>
             
@@ -128,19 +128,19 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
               placement="bottomRight"
               trigger={['click']}
             >
-              <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
+              <div className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition-colors">
                 <Avatar 
-                  size="default"
+                  size="large"
                   style={{ backgroundColor: '#00BFA5' }}
                   className="flex items-center justify-center"
                 >
                   {user?.name?.charAt(0).toUpperCase()}
                 </Avatar>
-                <div className="hidden sm:block">
-                  <Text strong className="text-gray-800 block text-sm">
+                <div className="hidden md:block">
+                  <Text strong className="text-gray-800 block text-base font-semibold">
                     {user?.name}
                   </Text>
-                  <Text className="text-gray-500 text-xs">
+                  <Text className="text-gray-500 text-sm font-medium">
                     {user?.organisation}
                   </Text>
                 </div>

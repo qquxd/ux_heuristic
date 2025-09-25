@@ -501,7 +501,7 @@ export const ProjectDetailPage: React.FC = () => {
       {/* Two Column Layout */}
       <Row gutter={[24, 24]}>
         {/* Left Column - Available Pages */}
-        <Col xs={24} lg={16}>
+        <Col xs={24} lg={18}>
           <Card 
             title={
               <div className="flex items-center gap-3">
@@ -666,7 +666,7 @@ export const ProjectDetailPage: React.FC = () => {
         </Col>
 
         {/* Right Column - Project Information & Quick Stats */}
-        <Col xs={24} lg={8}>
+        <Col xs={24} lg={6}>
           <div className="space-y-6">
             {/* Project Information */}
             <Card 

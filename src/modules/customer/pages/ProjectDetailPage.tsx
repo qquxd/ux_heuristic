@@ -66,21 +66,12 @@ export const ProjectDetailPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedPage, setSelectedPage] = useState<PageRoute | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (id) {
       fetchProjectDetails();
       fetchAvailableRoutes();
     }
-    
-    // Cleanup polling on unmount or navigation away
-    return () => {
-      if (pollingInterval) {
-        clearInterval(pollingInterval);
-        setPollingInterval(null);
-      }
-    };
   }, [id]);
 
   useEffect(() => {
@@ -95,27 +86,6 @@ export const ProjectDetailPage: React.FC = () => {
     }
     
     setFilteredRoutes(filtered);
-  };
-
-  const startPolling = () => {
-    // // Clear existing polling
-    // if (pollingInterval) {
-    //   clearInterval(pollingInterval);
-    // }
-    
-    // // Start new polling every 10 seconds
-    // const interval = setInterval(() => {
-    //   fetchAvailableRoutes();
-    // }, 10000);
-    
-    // setPollingInterval(interval);
-  };
-
-  const stopPolling = () => {
-    // if (pollingInterval) {
-    //   clearInterval(pollingInterval);
-    //   setPollingInterval(null);
-    // }
   };
 
   const fetchProjectDetails = async () => {
@@ -151,22 +121,6 @@ export const ProjectDetailPage: React.FC = () => {
       const routes = await ProjectService.getAvailableRoutes(parseInt(id!));
       setAvailableRoutes(routes);
       setHasInitialRoutes(routes.length > 0);
-      
-      // // Check if there are any pending or in_progress items
-      // const hasPendingAnalysis = routes.some(route => 
-      //   route.status === 'pending' || route.status === 'in_progress'
-      // );
-      
-      // // Only start/stop polling if we're still on this page (component is mounted)
-      // if (hasPendingAnalysis) {
-      //   if (!pollingInterval) {
-      //     startPolling();
-      //   }
-      // } else {
-      //   if (pollingInterval) {
-      //     stopPolling();
-      //   }
-      // }
     } catch (err: any) {
       setRoutesError(err as ErrorResponse);
       setAvailableRoutes([]);
@@ -224,10 +178,7 @@ export const ProjectDetailPage: React.FC = () => {
       
       // Clear selection after successful analysis
       setSelectedRowKeys([]);
-      
-      // // Start polling to check for updates
-      // startPolling();
-      
+
       // Refresh routes immediately to show updated status
       setTimeout(() => {
         fetchAvailableRoutes();
@@ -617,13 +568,6 @@ export const ProjectDetailPage: React.FC = () => {
             </div>
             
             <div className="flex items-center gap-3">
-              {findingPages && (
-                <div className="flex items-center gap-2 mr-4">
-                  <Loader2 size={16} className="animate-spin text-blue-500" />
-                  <Text className="text-sm text-gray-600">
-                    Finding pages... {Math.round(findPagesProgress)}%
-                  </Text>
-                </div>
               )}
               
               <div className="flex items-center gap-3">

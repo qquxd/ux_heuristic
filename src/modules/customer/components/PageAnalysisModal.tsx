@@ -150,52 +150,41 @@ export const PageAnalysisModal: React.FC<PageAnalysisModalProps> = ({
       onCancel={onClose}
       footer={null}
       width="80%"
-      className="top-4"
+      width="95%"
+      className="top-2"
       styles={{
-        body: { maxHeight: '85vh', overflowY: 'auto', padding: '32px' }
+        body: { maxHeight: '90vh', overflowY: 'auto', padding: '24px' }
       }}
     >
       <div className="space-y-6">
         {/* Status and Score Overview */}
-        <Row gutter={16}>
-          <Col span={12}>
-            <Card size="small" className="text-center">
-              <div className="space-y-2">
-                <Text className="text-gray-500 text-sm">Status</Text>
-                <div>
-                  <Badge
-                    status={page.status === 'completed' ? 'success' : page.status === 'pending' ? 'processing' : 'default'}
-                    text={
-                      <span className="capitalize font-medium">
-                        {page.status}
-                      </span>
-                    }
-                  />
-                </div>
-              </div>
-            </Card>
-          </Col>
-          <Col span={12}>
-            <Card size="small" className="text-center">
-              <div className="space-y-2">
-                <Text className="text-gray-500 text-sm">UX Score</Text>
-                <div>
-                  {uxScore !== null ? (
-                    <Text 
-                      strong 
-                      className="text-2xl"
-                      style={{ color: getScoreColor(uxScore) }}
-                    >
-                      {uxScore}/100
-                    </Text>
-                  ) : (
-                    <Text className="text-gray-400">-</Text>
-                  )}
-                </div>
-              </div>
-            </Card>
-          </Col>
-        </Row>
+        <div className="flex items-center justify-center gap-8 py-3 bg-gray-50 rounded-lg mb-4">
+          <div className="flex items-center gap-2">
+            <Text className="text-gray-500 text-sm font-medium">Status:</Text>
+            <Badge
+              status={page.status === 'completed' ? 'success' : page.status === 'pending' ? 'processing' : 'default'}
+              text={
+                <span className="capitalize font-medium text-sm">
+                  {page.status}
+                </span>
+              }
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <Text className="text-gray-500 text-sm font-medium">UX Score:</Text>
+            {uxScore !== null ? (
+              <Text 
+                strong 
+                className="text-lg"
+                style={{ color: getScoreColor(uxScore) }}
+              >
+                {uxScore}/100
+              </Text>
+            ) : (
+              <Text className="text-gray-400 text-sm">-</Text>
+            )}
+          </div>
+        </div>
 
         {/* Analysis Status */}
         {!hasAnalysis && (
@@ -223,9 +212,9 @@ export const PageAnalysisModal: React.FC<PageAnalysisModalProps> = ({
           <Row gutter={16}>
             {/* Left Column - Screenshot */}
             {page.annotated_snapshot_url && (
-              <Col xs={24} lg={12}>
+              <Col xs={24} lg={14}>
                 <Card title="Annotated Screenshot" size="small" className="h-full">
-                  <div className="w-full overflow-auto max-h-96">
+                  <div className="w-full overflow-auto" style={{ maxHeight: '70vh' }}>
                     <img
                       src={page.annotated_snapshot_url}
                       alt={`Screenshot of ${page.page_name}`}
@@ -246,7 +235,7 @@ export const PageAnalysisModal: React.FC<PageAnalysisModalProps> = ({
 
             {/* Right Column - Issues Analysis */}
             {hasAnalysis && issues.length > 0 && (
-              <Col xs={24} lg={page.annotated_snapshot_url ? 12 : 24}>
+              <Col xs={24} lg={page.annotated_snapshot_url ? 10 : 24}>
                 <Card 
                   title={
                     <div className="flex items-center justify-between">
@@ -271,7 +260,7 @@ export const PageAnalysisModal: React.FC<PageAnalysisModalProps> = ({
                   size="small"
                   className="h-full"
                 >
-                  <div className="space-y-4 max-h-96 overflow-auto">
+                  <div className="space-y-4 overflow-auto" style={{ maxHeight: '70vh' }}>
                     {issues
                       .sort((a, b) => b.severity - a.severity)
                       .map((issue, index) => renderIssueCard(issue, index))}

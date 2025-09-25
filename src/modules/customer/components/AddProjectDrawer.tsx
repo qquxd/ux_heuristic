@@ -149,16 +149,6 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
       aria-labelledby="drawer-title"
       aria-modal="true"
     >
-      <Alert
-        message="Create New Project"
-        description="Fill in the details below to create a new project. All fields marked with * are required."
-        type="info"
-        showIcon
-        className="mb-6"
-        role="region"
-        aria-label="Form instructions"
-      />
-
       {apiError && (
         <ErrorDisplay 
           error={apiError} 

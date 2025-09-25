@@ -130,8 +130,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
               className="flex items-center justify-center"
             />
 
-            <div className="flex items-center gap-4">
-              <Text className="text-gray-600 hidden md:block text-base font-medium">
+            <div className="flex items-center gap-6">
+              <Text className="text-gray-600 hidden lg:block text-lg font-medium">
                 Welcome back, {user?.name}
               </Text>
               
@@ -140,21 +140,21 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                 placement="bottomRight"
                 trigger={['click']}
               >
-                <div className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition-colors">
+                <div className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 px-4 py-2 rounded-lg transition-colors">
                   <Avatar 
-                    size="large"
+                    size={40}
                     style={{ backgroundColor: '#00BFA5' }}
                     className="flex items-center justify-center"
                   >
                     {user?.name?.charAt(0).toUpperCase()}
                   </Avatar>
-                  <div className="hidden md:block">
-                    <Text strong className="text-gray-800 block text-base font-semibold">
+                  <div className="hidden md:block text-left">
+                    <div className="text-gray-800 text-base font-semibold leading-tight">
                       {user?.name}
-                    </Text>
-                    <Text className="text-gray-500 text-sm font-medium">
+                    </div>
+                    <div className="text-gray-500 text-sm font-medium leading-tight mt-0.5">
                       {user?.organisation}
-                    </Text>
+                    </div>
                   </div>
                 </div>
               </Dropdown>

@@ -558,13 +558,6 @@ export const ProjectDetailPage: React.FC = () => {
                 <FileSearch size={20} className="text-white" />
               </div>
               <span>Available Pages</span>
-              {pollingInterval && (
-                <Badge 
-                  status="processing" 
-                  text="Auto-refreshing" 
-                  className="ml-2"
-                />
-              )}
             </div>
             
             <div className="flex items-center gap-3">

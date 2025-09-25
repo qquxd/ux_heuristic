@@ -568,9 +568,6 @@ export const ProjectDetailPage: React.FC = () => {
             </div>
             
             <div className="flex items-center gap-3">
-              )}
-              
-              <div className="flex items-center gap-3">
                 <Button
                   size="large"
                   icon={analyzingPages ? <Loader2 size={18} className="animate-spin" /> : <BarChart3 size={18} />}

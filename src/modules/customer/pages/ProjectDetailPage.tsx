@@ -459,286 +459,292 @@ export const ProjectDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Project Details */}
-      <Row gutter={[24, 24]} className="mb-8">
+
+      {/* Two Column Layout */}
+      <Row gutter={[24, 24]}>
+        {/* Left Column - Available Pages */}
         <Col xs={24} lg={16}>
           <Card 
-            title="Project Information"
-            className="shadow-lg border-0 rounded-2xl"
-          >
-            <Descriptions column={{ xs: 1, sm: 2 }} className="mt-4">
-              <Descriptions.Item label="Project Goal">
-                <div className="flex items-center gap-2">
-                  <Target size={16} className="text-gray-400" />
-                  <Text>{project.project_goal.goal}</Text>
-                </div>
-              </Descriptions.Item>
-              
-              <Descriptions.Item label="Project Type">
-                <Text className="capitalize">
-                  {project.project_type.replace('_', ' ')}
-                </Text>
-              </Descriptions.Item>
-
-              <Descriptions.Item label="Status">
-                <Badge
-                  color={statusConfig.color}
-                  text={
-                    <span className="flex items-center gap-1">
-                      {statusConfig.icon}
-                      {statusConfig.label}
-                    </span>
-                  }
-                />
-              </Descriptions.Item>
-
-              <Descriptions.Item label="Website URL">
-                <Button
-                  type="link"
-                  icon={<ExternalLink size={14} />}
-                  onClick={() => window.open(project.website_url, '_blank', 'noopener,noreferrer')}
-                  className="p-0 h-auto flex items-center gap-1"
-                >
-                  {project.website_url}
-                </Button>
-              </Descriptions.Item>
-
-              {project.created_on && (
-                <Descriptions.Item label="Created On">
-                  <div className="flex items-center gap-2">
-                    <Calendar size={16} className="text-gray-400" />
-                    <Text>{formatDate(project.created_on)}</Text>
+            title={
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-10 h-10 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: '#000336' }}
+                  >
+                    <FileSearch size={20} className="text-white" />
                   </div>
-                </Descriptions.Item>
-              )}
-            </Descriptions>
-          </Card>
-        </Col>
-
-        <Col xs={24} lg={8}>
-          <Card 
-            title="Quick Stats"
+                  <span>Available Pages</span>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <Button
+                    size="large"
+                    icon={analyzingPages ? <Loader2 size={18} className="animate-spin" /> : <BarChart3 size={18} />}
+                    onClick={handleAnalyzePages}
+                    loading={analyzingPages}
+                    disabled={analyzingPages || selectedRowKeys.length === 0}
+                    className="flex items-center gap-2"
+                  >
+                    {analyzingPages ? 'Analyzing...' : `Analyze${selectedRowKeys.length > 0 ? ` (${selectedRowKeys.length})` : ''}`}
+                  </Button>
+                  
+                  <Button
+                    type="primary"
+                    size="large"
+                    icon={findingPages ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
+                    onClick={handleFindPages}
+                    loading={findingPages}
+                    disabled={findingPages}
+                    className="flex items-center gap-2"
+                    style={{ 
+                      backgroundColor: '#00BFA5',
+                      borderColor: '#00BFA5',
+                    }}
+                  >
+                    {findingPages ? 'Finding Pages...' : 'Find Pages'}
+                  </Button>
+                </div>
+              </div>
+            }
             className="shadow-lg border-0 rounded-2xl"
           >
-            <Space direction="vertical" size="large" className="w-full">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-800 mb-1">
-                  {availableRoutes.length}
-                </div>
-                <Text className="text-gray-500">Available Pages</Text>
+            {findingPages && (
+              <div className="mb-6">
+                <Progress 
+                  percent={Math.round(findPagesProgress)} 
+                  status="active"
+                  strokeColor="#00BFA5"
+                  className="mb-2"
+                />
+                <Alert
+                  message="Finding Pages"
+                  description="This process may take up to 30 seconds. Please wait while we discover all available pages on your website."
+                  type="info"
+                  showIcon
+                  icon={<Clock size={16} />}
+                />
               </div>
-              
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600 mb-1">
-                  {availableRoutes.filter(route => route.status === 'completed').length}
-                </div>
-                <Text className="text-gray-500">Analyzed</Text>
-              </div>
-              
-              <div className="text-center">
-                <div className="text-2xl font-bold" style={{ color: statusConfig.color }}>
-                  {statusConfig.label}
-                </div>
-                <Text className="text-gray-500">Current Status</Text>
-              </div>
-            </Space>
-          </Card>
-        </Col>
-      </Row>
+            )}
 
-      {/* Available Pages Section */}
-      <Card 
-        title={
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div 
-                className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: '#000336' }}
-              >
-                <FileSearch size={20} className="text-white" />
-              </div>
-              <span>Available Pages</span>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <Button
-                size="large"
-                icon={analyzingPages ? <Loader2 size={18} className="animate-spin" /> : <BarChart3 size={18} />}
-                onClick={handleAnalyzePages}
-                loading={analyzingPages}
-                disabled={analyzingPages || selectedRowKeys.length === 0}
-                className="flex items-center gap-2"
-              >
-                {analyzingPages ? 'Analyzing...' : `Analyze${selectedRowKeys.length > 0 ? ` (${selectedRowKeys.length})` : ''}`}
-              </Button>
-              
-              <Button
-                type="primary"
-                size="large"
-                icon={findingPages ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
-                onClick={handleFindPages}
-                loading={findingPages}
-                disabled={findingPages}
-                className="flex items-center gap-2"
-                style={{ 
-                  backgroundColor: '#00BFA5',
-                  borderColor: '#00BFA5',
+            {routesError && (
+              <ErrorDisplay 
+                error={routesError} 
+                onRetry={() => {
+                  setRoutesError(null);
+                  fetchAvailableRoutes();
                 }}
-              >
-                {findingPages ? 'Finding Pages...' : 'Find Pages'}
-              </Button>
-            </div>
-          </div>
-        }
-        className="shadow-lg border-0 rounded-2xl"
-      >
-        {findingPages && (
-          <div className="mb-6">
-            <Progress 
-              percent={Math.round(findPagesProgress)} 
-              status="active"
-              strokeColor="#00BFA5"
-              className="mb-2"
-            />
-            <Alert
-              message="Finding Pages"
-              description="This process may take up to 30 seconds. Please wait while we discover all available pages on your website."
-              type="info"
-              showIcon
-              icon={<Clock size={16} />}
-            />
-          </div>
-        )}
+                className="mb-6"
+              />
+            )}
 
-        {routesError && (
-          <ErrorDisplay 
-            error={routesError} 
-            onRetry={() => {
-              setRoutesError(null);
-              fetchAvailableRoutes();
-            }}
-            className="mb-6"
-          />
-        )}
-
-        {/* Status Filter */}
-        {availableRoutes.length > 0 && (
-          <div className="mb-4">
-            <div className="flex items-center gap-4">
-              <Text strong>Filter by Status:</Text>
-              <Select
-                value={statusFilter}
-                onChange={(value) => setStatusFilter(value)}
-                style={{ minWidth: 150 }}
-                suffixIcon={<Filter size={16} />}
-              >
-                <Option value="all">All Status</Option>
-                {getUniqueStatuses().map(status => (
-                  <Option key={status.value} value={status.value}>
-                    {status.label}
-                  </Option>
-                ))}
-              </Select>
-              <Text className="text-gray-500 text-sm">
-                Showing {filteredRoutes.length} of {availableRoutes.length} pages
-              </Text>
-            </div>
-          </div>
-        )}
-
-        {routesLoading ? (
-          <div className="flex flex-col justify-center items-center py-12">
-            <Spin size="large" />
-            <Text className="mt-4 text-gray-500">Loading available pages...</Text>
-          </div>
-        ) : filteredRoutes.length === 0 ? (
-          <div className="text-center py-12">
-            <Empty
-              image={<FileSearch size={64} className="mx-auto text-gray-300" />}
-              description={
-                <div>
-                  <Title level={4} className="text-gray-400 mb-2">
-                    {availableRoutes.length === 0 
-                      ? (hasInitialRoutes ? 'No Pages Found' : 'No Pages Available')
-                      : 'No Pages Match Filter'
-                    }
-                  </Title>
-                  <Text className="text-gray-500">
-                    {availableRoutes.length === 0
-                      ? (hasInitialRoutes 
-                        ? "The search didn't find any pages. Try clicking 'Find Pages' to discover new pages."
-                        : "No pages have been discovered yet. Click 'Find Pages' to start discovering pages on your website.")
-                      : "Try changing the status filter to see more pages."
-                    }
+            {/* Status Filter */}
+            {availableRoutes.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center gap-4">
+                  <Text strong>Filter by Status:</Text>
+                  <Select
+                    value={statusFilter}
+                    onChange={(value) => setStatusFilter(value)}
+                    style={{ minWidth: 150 }}
+                    suffixIcon={<Filter size={16} />}
+                  >
+                    <Option value="all">All Status</Option>
+                    {getUniqueStatuses().map(status => (
+                      <Option key={status.value} value={status.value}>
+                        {status.label}
+                      </Option>
+                    ))}
+                  </Select>
+                  <Text className="text-gray-500 text-sm">
+                    Showing {filteredRoutes.length} of {availableRoutes.length} pages
                   </Text>
                 </div>
-              }
-            >
-              {availableRoutes.length === 0 ? (
-                <Button 
-                  type="primary" 
-                  size="large" 
-                  icon={<Search size={18} />}
-                  onClick={handleFindPages}
-                  loading={findingPages}
-                  className="mt-4"
-                  style={{ 
-                    backgroundColor: '#00BFA5',
-                    borderColor: '#00BFA5',
+              </div>
+            )}
+
+            {routesLoading ? (
+              <div className="flex flex-col justify-center items-center py-12">
+                <Spin size="large" />
+                <Text className="mt-4 text-gray-500">Loading available pages...</Text>
+              </div>
+            ) : filteredRoutes.length === 0 ? (
+              <div className="text-center py-12">
+                <Empty
+                  image={<FileSearch size={64} className="mx-auto text-gray-300" />}
+                  description={
+                    <div>
+                      <Title level={4} className="text-gray-400 mb-2">
+                        {availableRoutes.length === 0 
+                          ? (hasInitialRoutes ? 'No Pages Found' : 'No Pages Available')
+                          : 'No Pages Match Filter'
+                        }
+                      </Title>
+                      <Text className="text-gray-500">
+                        {availableRoutes.length === 0
+                          ? (hasInitialRoutes 
+                            ? "The search didn't find any pages. Try clicking 'Find Pages' to discover new pages."
+                            : "No pages have been discovered yet. Click 'Find Pages' to start discovering pages on your website.")
+                          : "Try changing the status filter to see more pages."
+                        }
+                      </Text>
+                    </div>
+                  }
+                >
+                  {availableRoutes.length === 0 ? (
+                    <Button 
+                      type="primary" 
+                      size="large" 
+                      icon={<Search size={18} />}
+                      onClick={handleFindPages}
+                      loading={findingPages}
+                      className="mt-4"
+                      style={{ 
+                        backgroundColor: '#00BFA5',
+                        borderColor: '#00BFA5',
+                      }}
+                    >
+                      Find Pages
+                    </Button>
+                  ) : (
+                    <Button 
+                      size="large" 
+                      onClick={() => setStatusFilter('all')}
+                      className="mt-4"
+                    >
+                      Clear Filter
+                    </Button>
+                  )}
+                </Empty>
+              </div>
+            ) : (
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <Text className="text-gray-600">
+                    Found {filteredRoutes.length} pages
+                    {selectedRowKeys.length > 0 && (
+                      <span className="ml-2 text-blue-600">
+                        ({selectedRowKeys.length} selected)
+                      </span>
+                    )}
+                  </Text>
+                  <Button
+                    icon={<RefreshCw size={16} />}
+                    onClick={fetchAvailableRoutes}
+                    disabled={routesLoading || findingPages}
+                    className="flex items-center gap-2"
+                  >
+                    Refresh
+                  </Button>
+                </div>
+                
+                <Table<PageRoute>
+                  rowSelection={rowSelection}
+                  columns={getTableColumns()}
+                  dataSource={filteredRoutes}
+                  rowKey="id"
+                  pagination={{
+                    pageSize: 10,
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} pages`,
                   }}
-                >
-                  Find Pages
-                </Button>
-              ) : (
-                <Button 
-                  size="large" 
-                  onClick={() => setStatusFilter('all')}
-                  className="mt-4"
-                >
-                  Clear Filter
-                </Button>
-              )}
-            </Empty>
-          </div>
-        ) : (
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <Text className="text-gray-600">
-                Found {filteredRoutes.length} pages
-                {selectedRowKeys.length > 0 && (
-                  <span className="ml-2 text-blue-600">
-                    ({selectedRowKeys.length} selected)
-                  </span>
+                  scroll={{ x: 600 }}
+                  className="rounded-lg"
+                  size="middle"
+                />
+              </div>
+            )}
+          </Card>
+        </Col>
+
+        {/* Right Column - Project Information & Quick Stats */}
+        <Col xs={24} lg={8}>
+          <div className="space-y-6">
+            {/* Project Information */}
+            <Card 
+              title="Project Information"
+              className="shadow-lg border-0 rounded-2xl"
+            >
+              <Descriptions column={1} className="mt-4">
+                <Descriptions.Item label="Project Goal">
+                  <div className="flex items-center gap-2">
+                    <Target size={16} className="text-gray-400" />
+                    <Text>{project.project_goal.goal}</Text>
+                  </div>
+                </Descriptions.Item>
+                
+                <Descriptions.Item label="Project Type">
+                  <Text className="capitalize">
+                    {project.project_type.replace('_', ' ')}
+                  </Text>
+                </Descriptions.Item>
+
+                <Descriptions.Item label="Status">
+                  <Badge
+                    color={statusConfig.color}
+                    text={
+                      <span className="flex items-center gap-1">
+                        {statusConfig.icon}
+                        {statusConfig.label}
+                      </span>
+                    }
+                  />
+                </Descriptions.Item>
+
+                <Descriptions.Item label="Website URL">
+                  <Button
+                    type="link"
+                    icon={<ExternalLink size={14} />}
+                    onClick={() => window.open(project.website_url, '_blank', 'noopener,noreferrer')}
+                    className="p-0 h-auto flex items-center gap-1"
+                  >
+                    {project.website_url}
+                  </Button>
+                </Descriptions.Item>
+
+                {project.created_on && (
+                  <Descriptions.Item label="Created On">
+                    <div className="flex items-center gap-2">
+                      <Calendar size={16} className="text-gray-400" />
+                      <Text>{formatDate(project.created_on)}</Text>
+                    </div>
+                  </Descriptions.Item>
                 )}
-              </Text>
-              <Button
-                icon={<RefreshCw size={16} />}
-                onClick={fetchAvailableRoutes}
-                disabled={routesLoading || findingPages}
-                className="flex items-center gap-2"
-              >
-                Refresh
-              </Button>
-            </div>
-            
-            <Table<PageRoute>
-              rowSelection={rowSelection}
-              columns={getTableColumns()}
-              dataSource={filteredRoutes}
-              rowKey="id"
-              pagination={{
-                pageSize: 10,
-                showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} pages`,
-              }}
-              scroll={{ x: 600 }}
-              className="rounded-lg"
-              size="middle"
-            />
+              </Descriptions>
+            </Card>
+
+            {/* Quick Stats */}
+            <Card 
+              title="Quick Stats"
+              className="shadow-lg border-0 rounded-2xl"
+            >
+              <Space direction="vertical" size="large" className="w-full">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-800 mb-1">
+                    {availableRoutes.length}
+                  </div>
+                  <Text className="text-gray-500">Available Pages</Text>
+                </div>
+                
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600 mb-1">
+                    {availableRoutes.filter(route => route.status === 'completed').length}
+                  </div>
+                  <Text className="text-gray-500">Analyzed</Text>
+                </div>
+                
+                <div className="text-center">
+                  <div className="text-2xl font-bold" style={{ color: statusConfig.color }}>
+                    {statusConfig.label}
+                  </div>
+                  <Text className="text-gray-500">Current Status</Text>
+                </div>
+              </Space>
+            </Card>
           </div>
-        )}
-      </Card>
+        </Col>
+      </Row>
 
       <PageAnalysisModal
         open={modalOpen}

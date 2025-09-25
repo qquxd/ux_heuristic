@@ -219,58 +219,67 @@ export const PageAnalysisModal: React.FC<PageAnalysisModalProps> = ({
           />
         )}
 
-        {/* Screenshot */}
-        {page.annotated_snapshot_url && (
-          <Card title="Annotated Screenshot" size="small">
-            <div className="w-full overflow-auto max-h-96">
-              <img
-                src={page.annotated_snapshot_url}
-                alt={`Screenshot of ${page.page_name}`}
-                className="w-full h-auto rounded-lg shadow-md border border-gray-200"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const errorDiv = document.createElement('div');
-                  errorDiv.className = 'flex items-center justify-center h-64 bg-gray-100 rounded-lg';
-                  errorDiv.innerHTML = '<span class="text-gray-400">Failed to load screenshot</span>';
-                  target.parentNode?.appendChild(errorDiv);
-                }}
-              />
-            </div>
-          </Card>
-        )}
+        {(page.annotated_snapshot_url || (hasAnalysis && issues.length > 0)) && (
+          <Row gutter={16}>
+            {/* Left Column - Screenshot */}
+            {page.annotated_snapshot_url && (
+              <Col xs={24} lg={12}>
+                <Card title="Annotated Screenshot" size="small" className="h-full">
+                  <div className="w-full overflow-auto max-h-96">
+                    <img
+                      src={page.annotated_snapshot_url}
+                      alt={`Screenshot of ${page.page_name}`}
+                      className="w-full h-auto rounded-lg shadow-md border border-gray-200"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'flex items-center justify-center h-64 bg-gray-100 rounded-lg';
+                        errorDiv.innerHTML = '<span class="text-gray-400">Failed to load screenshot</span>';
+                        target.parentNode?.appendChild(errorDiv);
+                      }}
+                    />
+                  </div>
+                </Card>
+              </Col>
+            )}
 
-        {/* Issues Analysis */}
-        {hasAnalysis && issues.length > 0 && (
-          <Card 
-            title={
-              <div className="flex items-center justify-between">
-                <span>UX Issues Found ({issues.length})</span>
-                <div className="flex items-center gap-2">
-                  {[1, 2, 3].map(severity => {
-                    const count = issues.filter(issue => issue.severity === severity).length;
-                    const config = getSeverityConfig(severity);
-                    return count > 0 ? (
-                      <Tooltip key={severity} title={`${count} ${config.label} severity issues`}>
-                        <Badge
-                          count={count}
-                          style={{ backgroundColor: config.color }}
-                          size="small"
-                        />
-                      </Tooltip>
-                    ) : null;
-                  })}
-                </div>
-              </div>
-            }
-            size="small"
-          >
-            <div className="space-y-4">
-              {issues
-                .sort((a, b) => b.severity - a.severity)
-                .map((issue, index) => renderIssueCard(issue, index))}
-            </div>
-          </Card>
+            {/* Right Column - Issues Analysis */}
+            {hasAnalysis && issues.length > 0 && (
+              <Col xs={24} lg={page.annotated_snapshot_url ? 12 : 24}>
+                <Card 
+                  title={
+                    <div className="flex items-center justify-between">
+                      <span>UX Issues Found ({issues.length})</span>
+                      <div className="flex items-center gap-2">
+                        {[1, 2, 3].map(severity => {
+                          const count = issues.filter(issue => issue.severity === severity).length;
+                          const config = getSeverityConfig(severity);
+                          return count > 0 ? (
+                            <Tooltip key={severity} title={`${count} ${config.label} severity issues`}>
+                              <Badge
+                                count={count}
+                                style={{ backgroundColor: config.color }}
+                                size="small"
+                              />
+                            </Tooltip>
+                          ) : null;
+                        })}
+                      </div>
+                    </div>
+                  }
+                  size="small"
+                  className="h-full"
+                >
+                  <div className="space-y-4 max-h-96 overflow-auto">
+                    {issues
+                      .sort((a, b) => b.severity - a.severity)
+                      .map((issue, index) => renderIssueCard(issue, index))}
+                  </div>
+                </Card>
+              </Col>
+            )}
+          </Row>
         )}
 
         {/* No Issues */}

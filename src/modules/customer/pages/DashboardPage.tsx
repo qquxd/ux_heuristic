@@ -244,7 +244,7 @@ export const DashboardPage: React.FC = () => {
           <div className="text-center py-8">
             <div 
               className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-              style={{ backgroundColor: '#FFD700' }}
+              style={{ backgroundColor: '#00BFA5' }}
             >
               <CheckCircle size={32} className="text-white" />
             </div>

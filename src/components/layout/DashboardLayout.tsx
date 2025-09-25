@@ -72,10 +72,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
       theme={{
         components: {
           Menu: {
-            itemSelectedBg: '#000336',
+            itemSelectedBg: '#00BFA5',
             itemSelectedColor: '#ffffff',
-            itemHoverBg: 'rgba(0, 3, 54, 0.1)',
-            itemHoverColor: '#000336',
+            itemHoverBg: 'rgba(0, 191, 165, 0.1)',
+            itemHoverColor: '#00BFA5',
           },
         },
       }}
@@ -93,7 +93,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             <div className="flex items-center gap-3">
               <div 
                 className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: '#000336' }}
+                style={{ backgroundColor: '#00BFA5' }}
               >
                 <Text className="text-white font-bold text-lg">
                   {collapsed ? 'L' : 'Logo'}
@@ -143,7 +143,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                 <div className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition-colors">
                   <Avatar 
                     size="large"
-                    style={{ backgroundColor: '#000336' }}
+                    style={{ backgroundColor: '#00BFA5' }}
                     className="flex items-center justify-center"
                   >
                     {user?.name?.charAt(0).toUpperCase()}

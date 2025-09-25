@@ -448,7 +448,7 @@ export const ProjectDetailPage: React.FC = () => {
                   </span>
                 }
               />
-              <Text className="text-gray-500 capitalize text-base font-medium">
+              style={{ backgroundColor: '#00BFA5' }}
                 {project.project_type.replace('_', ' ')}
               </Text>
             </div>

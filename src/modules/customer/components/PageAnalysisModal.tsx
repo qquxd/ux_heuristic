@@ -149,7 +149,7 @@ export const PageAnalysisModal: React.FC<PageAnalysisModalProps> = ({
       open={open}
       onCancel={onClose}
       footer={null}
-      width={1200}
+      width="80%"
       className="top-4"
       styles={{
         body: { maxHeight: '85vh', overflowY: 'auto', padding: '32px' }

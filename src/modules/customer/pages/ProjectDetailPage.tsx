@@ -595,6 +595,7 @@ export const ProjectDetailPage: React.FC = () => {
                 {findingPages ? 'Finding Pages...' : 'Find Pages'}
               </Button>
             </div>
+          </div>
         }
         className="shadow-lg border-0 rounded-2xl"
       >

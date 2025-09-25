@@ -17,6 +17,9 @@ class ApiService {
       timeout: config.timeout,
       headers: {
         'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       },
     });
 
@@ -26,6 +29,9 @@ class ApiService {
       timeout: config.timeout,
       headers: {
         'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       },
     });
 
@@ -36,6 +42,10 @@ class ApiService {
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
+        // Ensure CORS headers are present
+        config.headers['Access-Control-Allow-Origin'] = '*';
+        config.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS';
+        config.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization';
         return config;
       },
       (error) => Promise.reject(error)

@@ -222,12 +222,11 @@ export const PageAnalysisModal: React.FC<PageAnalysisModalProps> = ({
         {/* Screenshot */}
         {page.annotated_snapshot_url && (
           <Card title="Annotated Screenshot" size="small">
-            <div className="text-center">
+            <div className="w-full overflow-auto max-h-96">
               <img
                 src={page.annotated_snapshot_url}
                 alt={`Screenshot of ${page.page_name}`}
-                className="max-w-full h-auto rounded-lg shadow-md border border-gray-200"
-                style={{ maxHeight: '600px', objectFit: 'contain' }}
+                className="w-full h-auto rounded-lg shadow-md border border-gray-200"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.style.display = 'none';

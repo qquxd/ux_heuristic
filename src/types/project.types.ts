@@ -3,6 +3,7 @@ export interface PageRoute {
   page_name: string;
   page_url: string;
   status: string;
+  ux_score: string;
 }
 
 export interface FindPagesResponse {

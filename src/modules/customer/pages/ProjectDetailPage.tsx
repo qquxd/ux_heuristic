@@ -293,6 +293,22 @@ export const ProjectDetailPage: React.FC = () => {
       ),
     },
     {
+      title: 'UX Score',
+      dataIndex: 'ux_score',
+      key: 'ux_score',
+      width: 100,
+      render: (score: string) => (
+        <Text className="font-medium">
+          {score && score.trim() !== '' ? score : '-'}
+        </Text>
+      ),
+      sorter: (a, b) => {
+        const scoreA = a.ux_score && a.ux_score.trim() !== '' ? parseFloat(a.ux_score) : -1;
+        const scoreB = b.ux_score && b.ux_score.trim() !== '' ? parseFloat(b.ux_score) : -1;
+        return scoreA - scoreB;
+      },
+    },
+    {
       title: 'Actions',
       key: 'actions',
       width: 100,

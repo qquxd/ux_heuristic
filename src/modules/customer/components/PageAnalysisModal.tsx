@@ -223,16 +223,19 @@ export const PageAnalysisModal: React.FC<PageAnalysisModalProps> = ({
         {page.annotated_snapshot_url && (
           <Card title="Annotated Screenshot" size="small">
             <div className="text-center">
-              <Image
+              <img
                 src={page.annotated_snapshot_url}
                 alt={`Screenshot of ${page.page_name}`}
-                className="max-w-full rounded-lg shadow-md"
-                placeholder={
-                  <div className="flex items-center justify-center h-64 bg-gray-100 rounded-lg">
-                    <Text className="text-gray-400">Loading screenshot...</Text>
-                  </div>
-                }
-                fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3Ik1RnG4W+FgYxN"
+                className="max-w-full h-auto rounded-lg shadow-md border border-gray-200"
+                style={{ maxHeight: '600px', objectFit: 'contain' }}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const errorDiv = document.createElement('div');
+                  errorDiv.className = 'flex items-center justify-center h-64 bg-gray-100 rounded-lg';
+                  errorDiv.innerHTML = '<span class="text-gray-400">Failed to load screenshot</span>';
+                  target.parentNode?.appendChild(errorDiv);
+                }}
               />
             </div>
           </Card>

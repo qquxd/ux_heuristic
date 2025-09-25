@@ -74,10 +74,11 @@ export const ProjectDetailPage: React.FC = () => {
       fetchAvailableRoutes();
     }
     
-    // Cleanup polling on unmount
+    // Cleanup polling on unmount or navigation away
     return () => {
       if (pollingInterval) {
         clearInterval(pollingInterval);
+        setPollingInterval(null);
       }
     };
   }, [id]);
@@ -156,10 +157,15 @@ export const ProjectDetailPage: React.FC = () => {
         route.status === 'pending' || route.status === 'in_progress'
       );
       
-      if (hasPendingAnalysis && !pollingInterval) {
-        startPolling();
-      } else if (!hasPendingAnalysis && pollingInterval) {
-        stopPolling();
+      // Only start/stop polling if we're still on this page (component is mounted)
+      if (hasPendingAnalysis) {
+        if (!pollingInterval) {
+          startPolling();
+        }
+      } else {
+        if (pollingInterval) {
+          stopPolling();
+        }
       }
     } catch (err: any) {
       setRoutesError(err as ErrorResponse);
@@ -221,6 +227,11 @@ export const ProjectDetailPage: React.FC = () => {
       
       // Start polling to check for updates
       startPolling();
+      
+      // Refresh routes immediately to show updated status
+      setTimeout(() => {
+        fetchAvailableRoutes();
+      }, 1000);
       
     } catch (err: any) {
       setRoutesError(err as ErrorResponse);

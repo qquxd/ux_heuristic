@@ -220,11 +220,11 @@ export const PageAnalysisModal: React.FC<PageAnalysisModalProps> = ({
         )}
 
         {/* Screenshot */}
-        {page.annotated_snapshot_path && (
+        {page.annotated_snapshot_url && (
           <Card title="Annotated Screenshot" size="small">
             <div className="text-center">
               <Image
-                src={page.annotated_snapshot_path}
+                src={page.annotated_snapshot_url}
                 alt={`Screenshot of ${page.page_name}`}
                 className="max-w-full rounded-lg shadow-md"
                 placeholder={

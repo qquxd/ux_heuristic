@@ -23,7 +23,7 @@ export interface PageRoute {
   page_url: string;
   status: string;
   ux_score: string;
-  annotated_snapshot_path?: string;
+  annotated_snapshot_url?: string;
   report_json?: ReportJson | null;
 }
 

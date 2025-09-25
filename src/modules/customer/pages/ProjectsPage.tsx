@@ -282,7 +282,7 @@ export const ProjectsPage: React.FC = () => {
                     <Avatar
                       size="small"
                       icon={getProjectTypeIcon(project.project_type)}
-                      style={{ backgroundColor: '#000336' }}
+                      style={{ backgroundColor: '#00BFA5' }}
                       aria-label={`${project.project_type.replace('_', ' ')} project type`}
                     />
                   </Tooltip>
@@ -363,7 +363,7 @@ export const ProjectsPage: React.FC = () => {
             <Avatar
               size="default"
               icon={getProjectTypeIcon(record.project_type)}
-              style={{ backgroundColor: '#000336' }}
+              style={{ backgroundColor: '#00BFA5' }}
               aria-label={`${record.project_type.replace('_', ' ')} project type`}
             />
           </Tooltip>

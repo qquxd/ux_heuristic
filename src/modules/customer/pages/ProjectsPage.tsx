@@ -79,8 +79,6 @@ export const ProjectsPage: React.FC = () => {
       const response = await ProjectService.getProjects();
       setProjects(response.results || []);
       
-      // Announce to screen readers
-      message.success(`${(response.results || []).length} projects loaded successfully`, 2);
     } catch (err: any) {
       setError(err as ErrorResponse);
       message.error('Failed to load projects. Please try again.');
@@ -135,7 +133,6 @@ export const ProjectsPage: React.FC = () => {
     setSearchTerm('');
     setStatusFilter('all');
     setSortBy('date');
-    message.info('Filters cleared');
   };
 
   const getStatusConfig = (status: string) => {
@@ -523,6 +520,7 @@ export const ProjectsPage: React.FC = () => {
               type="primary"
               size="large"
               icon={<Plus size={18} />}
+              className="text-base font-medium"
               onClick={() => setDrawerOpen(true)}
               className="flex items-center justify-center gap-2"
               style={{ 
@@ -538,7 +536,6 @@ export const ProjectsPage: React.FC = () => {
               value={viewType}
               onChange={(e) => {
                 setViewType(e.target.value);
-                message.info(`Switched to ${e.target.value === 'list' ? 'table' : e.target.value} view`);
               }}
               buttonStyle="solid"
               aria-label="View type selection"
@@ -575,7 +572,6 @@ export const ProjectsPage: React.FC = () => {
                 value={statusFilter}
                 onChange={(value) => {
                   setStatusFilter(value);
-                  message.info(value === 'all' ? 'Showing all projects' : `Filtered by ${value} status`);
                 }}
                 size="large"
                 style={{ minWidth: 140 }}
@@ -594,7 +590,6 @@ export const ProjectsPage: React.FC = () => {
                 value={sortBy}
                 onChange={(value) => {
                   setSortBy(value);
-                  message.info(`Sorted by ${value}`);
                 }}
                 size="large"
                 style={{ minWidth: 140 }}

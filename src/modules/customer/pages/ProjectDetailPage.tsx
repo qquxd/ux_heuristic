@@ -448,10 +448,6 @@ export const ProjectDetailPage: React.FC = () => {
                   </span>
                 }
               />
-              style={{ backgroundColor: '#00BFA5' }}
-                {project.project_type.replace('_', ' ')}
-              </Text>
-            </div>
             <Paragraph className="text-gray-600 text-xl max-w-4xl leading-relaxed">
               {project.description}
             </Paragraph>

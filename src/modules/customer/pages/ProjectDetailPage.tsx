@@ -568,35 +568,33 @@ export const ProjectDetailPage: React.FC = () => {
             </div>
             
             <div className="flex items-center gap-3">
-                <Button
-                  size="large"
-                  icon={analyzingPages ? <Loader2 size={18} className="animate-spin" /> : <BarChart3 size={18} />}
-                  onClick={handleAnalyzePages}
-                  loading={analyzingPages}
-                  disabled={analyzingPages || selectedRowKeys.length === 0}
-                  className="flex items-center gap-2"
-                >
-                  {analyzingPages ? 'Analyzing...' : `Analyze${selectedRowKeys.length > 0 ? ` (${selectedRowKeys.length})` : ''}`}
-                </Button>
-                
-                <Button
-                  type="primary"
-                  size="large"
-                  icon={findingPages ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
-                  onClick={handleFindPages}
-                  loading={findingPages}
-                  disabled={findingPages}
-                  className="flex items-center gap-2"
-                  style={{ 
-                    backgroundColor: '#00BFA5',
-                    borderColor: '#00BFA5',
-                  }}
-                >
-                  {findingPages ? 'Finding Pages...' : 'Find Pages'}
-                </Button>
-              </div>
+              <Button
+                size="large"
+                icon={analyzingPages ? <Loader2 size={18} className="animate-spin" /> : <BarChart3 size={18} />}
+                onClick={handleAnalyzePages}
+                loading={analyzingPages}
+                disabled={analyzingPages || selectedRowKeys.length === 0}
+                className="flex items-center gap-2"
+              >
+                {analyzingPages ? 'Analyzing...' : `Analyze${selectedRowKeys.length > 0 ? ` (${selectedRowKeys.length})` : ''}`}
+              </Button>
+              
+              <Button
+                type="primary"
+                size="large"
+                icon={findingPages ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
+                onClick={handleFindPages}
+                loading={findingPages}
+                disabled={findingPages}
+                className="flex items-center gap-2"
+                style={{ 
+                  backgroundColor: '#00BFA5',
+                  borderColor: '#00BFA5',
+                }}
+              >
+                {findingPages ? 'Finding Pages...' : 'Find Pages'}
+              </Button>
             </div>
-          </div>
         }
         className="shadow-lg border-0 rounded-2xl"
       >

@@ -413,16 +413,16 @@ export const ProjectsPage: React.FC = () => {
       render: (status: string) => {
         const statusConfig = getStatusConfig(status);
         return (
-          <Badge
-            color={statusConfig.color}
-            text={
-              <span className="flex items-center gap-1 font-medium">
-                {statusConfig.icon}
-                {statusConfig.label}
-              </span>
-            }
-            aria-label={statusConfig.ariaLabel}
-          />
+          <div className="flex items-center gap-2">
+            <div 
+              className="w-2 h-2 rounded-full flex-shrink-0"
+              style={{ backgroundColor: statusConfig.color }}
+            />
+            <span className="flex items-center gap-1 font-medium">
+              {statusConfig.icon}
+              {statusConfig.label}
+            </span>
+          </div>
         );
       },
       filters: getUniqueStatuses().map(status => ({

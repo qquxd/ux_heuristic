@@ -219,6 +219,17 @@ export const ProjectDetailPage: React.FC = () => {
     }));
   };
 
+  const calculateAverageScore = () => {
+    const scoresWithValues = availableRoutes
+      .filter(route => route.ux_score && route.ux_score.trim() !== '')
+      .map(route => parseFloat(route.ux_score));
+    
+    if (scoresWithValues.length === 0) return null;
+    
+    const sum = scoresWithValues.reduce((acc, score) => acc + score, 0);
+    return Math.round(sum / scoresWithValues.length);
+  };
+
   const getStatusConfig = (status: string) => {
     const normalizedStatus = status.toLowerCase();
     switch (normalizedStatus) {
@@ -446,7 +457,34 @@ export const ProjectDetailPage: React.FC = () => {
             </Paragraph>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <Button
+              size="large"
+              icon={analyzingPages ? <Loader2 size={18} className="animate-spin" /> : <BarChart3 size={18} />}
+              onClick={handleAnalyzePages}
+              loading={analyzingPages}
+              disabled={analyzingPages || selectedRowKeys.length === 0}
+              className="flex items-center justify-center gap-2"
+            >
+              {analyzingPages ? 'Analyzing...' : `Analyze${selectedRowKeys.length > 0 ? ` (${selectedRowKeys.length})` : ''}`}
+            </Button>
+            
+            <Button
+              type="primary"
+              size="large"
+              icon={findingPages ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
+              onClick={handleFindPages}
+              loading={findingPages}
+              disabled={findingPages}
+              className="flex items-center justify-center gap-2"
+              style={{ 
+                backgroundColor: '#00BFA5',
+                borderColor: '#00BFA5',
+              }}
+            >
+              {findingPages ? 'Finding Pages...' : 'Find Pages'}
+            </Button>
+            
             <Button
               size="large"
               icon={<Globe size={18} />}
@@ -466,45 +504,14 @@ export const ProjectDetailPage: React.FC = () => {
         <Col xs={24} lg={16}>
           <Card 
             title={
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div 
-                    className="w-10 h-10 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: '#000336' }}
-                  >
-                    <FileSearch size={20} className="text-white" />
-                  </div>
-                  <span>Available Pages</span>
+              <div className="flex items-center gap-3">
+                <div 
+                  className="w-10 h-10 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: '#000336' }}
+                >
+                  <FileSearch size={20} className="text-white" />
                 </div>
-                
-                <div className="flex items-center gap-3">
-                  <Button
-                    size="large"
-                    icon={analyzingPages ? <Loader2 size={18} className="animate-spin" /> : <BarChart3 size={18} />}
-                    onClick={handleAnalyzePages}
-                    loading={analyzingPages}
-                    disabled={analyzingPages || selectedRowKeys.length === 0}
-                    className="flex items-center gap-2"
-                  >
-                    {analyzingPages ? 'Analyzing...' : `Analyze${selectedRowKeys.length > 0 ? ` (${selectedRowKeys.length})` : ''}`}
-                  </Button>
-                  
-                  <Button
-                    type="primary"
-                    size="large"
-                    icon={findingPages ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
-                    onClick={handleFindPages}
-                    loading={findingPages}
-                    disabled={findingPages}
-                    className="flex items-center gap-2"
-                    style={{ 
-                      backgroundColor: '#00BFA5',
-                      borderColor: '#00BFA5',
-                    }}
-                  >
-                    {findingPages ? 'Finding Pages...' : 'Find Pages'}
-                  </Button>
-                </div>
+                <span>Available Pages</span>
               </div>
             }
             className="shadow-lg border-0 rounded-2xl"
@@ -681,15 +688,17 @@ export const ProjectDetailPage: React.FC = () => {
                 </Descriptions.Item>
 
                 <Descriptions.Item label="Status">
-                  <Badge
-                    color={statusConfig.color}
-                    text={
-                      <span className="flex items-center gap-1">
-                        {statusConfig.icon}
-                        {statusConfig.label}
-                      </span>
-                    }
-                  />
+                  <div className="flex items-center gap-1">
+                    <Badge
+                      color={statusConfig.color}
+                      text={
+                        <span className="flex items-center gap-1">
+                          {statusConfig.icon}
+                          {statusConfig.label}
+                        </span>
+                      }
+                    />
+                  </div>
                 </Descriptions.Item>
 
                 <Descriptions.Item label="Website URL">
@@ -720,6 +729,13 @@ export const ProjectDetailPage: React.FC = () => {
               className="shadow-lg border-0 rounded-2xl"
             >
               <Space direction="vertical" size="large" className="w-full">
+                <div className="text-center">
+                  <div className="text-2xl font-bold mb-1" style={{ color: calculateAverageScore() ? (calculateAverageScore()! >= 80 ? '#00BFA5' : calculateAverageScore()! >= 60 ? '#FFD700' : '#ff4d4f') : '#666' }}>
+                    {calculateAverageScore() !== null ? `${calculateAverageScore()}/100` : 'N/A'}
+                  </div>
+                  <Text className="text-gray-500">Average UX Score</Text>
+                </div>
+                
                 <div className="text-center">
                   <div className="text-2xl font-bold text-gray-800 mb-1">
                     {availableRoutes.length}

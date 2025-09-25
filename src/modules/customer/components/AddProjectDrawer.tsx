@@ -6,9 +6,7 @@ import {
   Button, 
   Select, 
   Typography, 
-  Space,
-  message,
-  Alert
+  message
 } from 'antd';
 import { X, Plus } from 'lucide-react';
 import { ProjectService, CreateProjectRequest } from '../../../services/projectService';
@@ -52,23 +50,15 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
       setApiError(null);
       setValidationErrors([]);
 
-      // Trim all string values before submitting
-      const trimmedValues = {
-        ...values,
-        project_name: values.project_name?.trim(),
-        description: values.description?.trim(),
-        goal: values.goal?.trim(),
-        website_url: values.website_url?.trim(),
-      };
       const projectData: CreateProjectRequest = {
-        project_name: trimmedValues.project_name,
-        description: trimmedValues.description,
+        project_name: values.project_name.trim(),
+        description: values.description.trim(),
         project_type: values.project_type,
         status: values.status,
         project_goal: {
-          goal: trimmedValues.goal,
+          goal: values.goal.trim(),
         },
-        website_url: trimmedValues.website_url,
+        website_url: values.website_url.trim(),
       };
 
       await ProjectService.createProject(projectData);
@@ -91,12 +81,6 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
     }
   };
 
-  const getFieldError = (fieldName: string): { validateStatus?: 'error'; help?: string } => {
-    // Only show API validation errors when form is not being validated by Ant Design
-    const error = ErrorHandler.getFieldError(validationErrors, fieldName);
-    return error ? { validateStatus: 'error', help: error } : {};
-  };
-
   const handleRetry = () => {
     setApiError(null);
     setValidationErrors([]);
@@ -109,8 +93,8 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
     onClose();
   };
 
-  const handleFormValuesChange = () => {
-    // Clear API validation errors when form values change
+  const handleFormChange = () => {
+    // Clear API errors when user starts typing
     if (validationErrors.length > 0) {
       setValidationErrors([]);
     }
@@ -118,15 +102,15 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
       setApiError(null);
     }
   };
+
   return (
     <Drawer
       title={
-        <div className="flex items-center justify-between" role="banner">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div 
               className="w-10 h-10 rounded-full flex items-center justify-center"
               style={{ backgroundColor: '#00BFA5' }}
-              aria-hidden="true"
             >
               <Plus size={20} className="text-white" />
             </div>
@@ -139,7 +123,6 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
             icon={<X size={18} />}
             onClick={handleClose}
             className="flex items-center justify-center"
-            aria-label="Close drawer"
           />
         </div>
       }
@@ -150,13 +133,9 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
       closable={false}
       destroyOnClose
       maskClosable={false}
-      keyboard={true}
       styles={{
         body: { padding: '24px' }
       }}
-      role="dialog"
-      aria-labelledby="drawer-title"
-      aria-modal="true"
     >
       {apiError && (
         <ErrorDisplay 
@@ -175,21 +154,19 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
         form={form}
         layout="vertical"
         onFinish={handleSubmit}
-        onValuesChange={handleFormValuesChange}
+        onValuesChange={handleFormChange}
         autoComplete="off"
         requiredMark={false}
         preserve={false}
-        scrollToFirstError
       >
         <Form.Item
-          label={<span>Project Name <span className="text-red-500" aria-label="required">*</span></span>}
+          label="Project Name"
           name="project_name"
           rules={[
             { required: true, message: 'Please enter project name' },
             { min: 2, message: 'Project name must be at least 2 characters' },
-            { max: 100, message: 'Project name must not exceed 100 characters' },
+            { max: 100, message: 'Project name must not exceed 100 characters' }
           ]}
-          {...(validationErrors.length > 0 ? getFieldError('project_name') : {})}
         >
           <Input
             size="large"
@@ -197,22 +174,17 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
             disabled={loading}
             maxLength={100}
             showCount
-            aria-describedby="project-name-help"
           />
-          <div id="project-name-help" className="sr-only">
-            Enter a descriptive name for your project (2-100 characters)
-          </div>
         </Form.Item>
 
         <Form.Item
-          label={<span>Description <span className="text-red-500" aria-label="required">*</span></span>}
+          label="Description"
           name="description"
           rules={[
             { required: true, message: 'Please enter project description' },
             { min: 10, message: 'Description must be at least 10 characters' },
-            { max: 500, message: 'Description must not exceed 500 characters' },
+            { max: 500, message: 'Description must not exceed 500 characters' }
           ]}
-          {...(validationErrors.length > 0 ? getFieldError('description') : {})}
         >
           <TextArea
             rows={4}
@@ -220,26 +192,20 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
             disabled={loading}
             maxLength={500}
             showCount
-            aria-describedby="description-help"
           />
-          <div id="description-help" className="sr-only">
-            Provide a detailed description of your project (10-500 characters)
-          </div>
         </Form.Item>
 
         <Form.Item
-          label={<span>Project Type <span className="text-red-500" aria-label="required">*</span></span>}
+          label="Project Type"
           name="project_type"
           rules={[
-            { required: true, message: 'Please select project type' },
+            { required: true, message: 'Please select project type' }
           ]}
-          {...(validationErrors.length > 0 ? getFieldError('project_type') : {})}
         >
           <Select
             size="large"
             placeholder="Select project type"
             disabled={loading}
-            aria-describedby="project-type-help"
           >
             <Option value="website">Website</Option>
             <Option value="mobile_app">Mobile App</Option>
@@ -247,24 +213,19 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
             <Option value="api">API</Option>
             <Option value="other">Other</Option>
           </Select>
-          <div id="project-type-help" className="sr-only">
-            Choose the type of project you are creating
-          </div>
         </Form.Item>
 
         <Form.Item
-          label={<span>Status <span className="text-red-500" aria-label="required">*</span></span>}
+          label="Status"
           name="status"
           rules={[
-            { required: true, message: 'Please select project status' },
+            { required: true, message: 'Please select project status' }
           ]}
-          {...(validationErrors.length > 0 ? getFieldError('status') : {})}
         >
           <Select
             size="large"
             placeholder="Select project status"
             disabled={loading}
-            aria-describedby="status-help"
           >
             <Option value="planning">Planning</Option>
             <Option value="in_progress">In Progress</Option>
@@ -272,20 +233,16 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
             <Option value="on_hold">On Hold</Option>
             <Option value="cancelled">Cancelled</Option>
           </Select>
-          <div id="status-help" className="sr-only">
-            Select the current status of your project
-          </div>
         </Form.Item>
 
         <Form.Item
-          label={<span>Project Goal <span className="text-red-500" aria-label="required">*</span></span>}
+          label="Project Goal"
           name="goal"
           rules={[
             { required: true, message: 'Please enter project goal' },
             { min: 5, message: 'Goal must be at least 5 characters' },
-            { max: 200, message: 'Goal must not exceed 200 characters' },
+            { max: 200, message: 'Goal must not exceed 200 characters' }
           ]}
-          {...(validationErrors.length > 0 ? getFieldError('goal') : {})}
         >
           <Input
             size="large"
@@ -293,40 +250,30 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
             disabled={loading}
             maxLength={200}
             showCount
-            aria-describedby="goal-help"
           />
-          <div id="goal-help" className="sr-only">
-            Describe the main goal or objective of this project (5-200 characters)
-          </div>
         </Form.Item>
 
         <Form.Item
-          label={<span>Website URL <span className="text-red-500" aria-label="required">*</span></span>}
+          label="Website URL"
           name="website_url"
           rules={[
             { required: true, message: 'Please enter website URL' },
-            { type: 'url', message: 'Please enter a valid URL' },
+            { type: 'url', message: 'Please enter a valid URL' }
           ]}
-          {...(validationErrors.length > 0 ? getFieldError('website_url') : {})}
         >
           <Input
             size="large"
             placeholder="https://example.com"
             disabled={loading}
-            aria-describedby="url-help"
           />
-          <div id="url-help" className="sr-only">
-            Enter the full URL of the website (must start with http:// or https://)
-          </div>
         </Form.Item>
 
-        <div className="flex gap-3 pt-4 border-t border-gray-200" role="group" aria-label="Form actions">
+        <div className="flex gap-3 pt-4 border-t border-gray-200">
           <Button
             size="large"
             onClick={handleClose}
             disabled={loading}
             className="flex-1"
-            aria-label="Cancel and close form"
           >
             Cancel
           </Button>
@@ -340,7 +287,6 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
               backgroundColor: '#00BFA5',
               borderColor: '#00BFA5',
             }}
-            aria-label={loading ? 'Creating project, please wait' : 'Create new project'}
           >
             {loading ? 'Creating...' : 'Create Project'}
           </Button>

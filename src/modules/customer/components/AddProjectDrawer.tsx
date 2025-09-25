@@ -92,12 +92,9 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
   };
 
   const getFieldError = (fieldName: string): { validateStatus?: 'error'; help?: string } => {
-    // Only show API validation errors, not form validation errors
-    if (validationErrors.length > 0) {
-      const error = ErrorHandler.getFieldError(validationErrors, fieldName);
-      return error ? { validateStatus: 'error', help: error } : {};
-    }
-    return {};
+    // Only show API validation errors when form is not being validated by Ant Design
+    const error = ErrorHandler.getFieldError(validationErrors, fieldName);
+    return error ? { validateStatus: 'error', help: error } : {};
   };
 
   const handleRetry = () => {
@@ -113,9 +110,13 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
   };
 
   const handleFormValuesChange = () => {
-    // Clear all validation errors when form values change
-    setValidationErrors([]);
-    setApiError(null);
+    // Clear API validation errors when form values change
+    if (validationErrors.length > 0) {
+      setValidationErrors([]);
+    }
+    if (apiError) {
+      setApiError(null);
+    }
   };
   return (
     <Drawer
@@ -187,9 +188,8 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
             { required: true, message: 'Please enter project name' },
             { min: 2, message: 'Project name must be at least 2 characters' },
             { max: 100, message: 'Project name must not exceed 100 characters' },
-            { whitespace: true, message: 'Project name cannot be empty' },
           ]}
-          {...getFieldError('project_name')}
+          {...(validationErrors.length > 0 ? getFieldError('project_name') : {})}
         >
           <Input
             size="large"
@@ -211,9 +211,8 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
             { required: true, message: 'Please enter project description' },
             { min: 10, message: 'Description must be at least 10 characters' },
             { max: 500, message: 'Description must not exceed 500 characters' },
-            { whitespace: true, message: 'Description cannot be empty' },
           ]}
-          {...getFieldError('description')}
+          {...(validationErrors.length > 0 ? getFieldError('description') : {})}
         >
           <TextArea
             rows={4}
@@ -234,7 +233,7 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
           rules={[
             { required: true, message: 'Please select project type' },
           ]}
-          {...getFieldError('project_type')}
+          {...(validationErrors.length > 0 ? getFieldError('project_type') : {})}
         >
           <Select
             size="large"
@@ -259,7 +258,7 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
           rules={[
             { required: true, message: 'Please select project status' },
           ]}
-          {...getFieldError('status')}
+          {...(validationErrors.length > 0 ? getFieldError('status') : {})}
         >
           <Select
             size="large"
@@ -285,9 +284,8 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
             { required: true, message: 'Please enter project goal' },
             { min: 5, message: 'Goal must be at least 5 characters' },
             { max: 200, message: 'Goal must not exceed 200 characters' },
-            { whitespace: true, message: 'Goal cannot be empty' },
           ]}
-          {...getFieldError('goal')}
+          {...(validationErrors.length > 0 ? getFieldError('goal') : {})}
         >
           <Input
             size="large"
@@ -308,9 +306,8 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
           rules={[
             { required: true, message: 'Please enter website URL' },
             { type: 'url', message: 'Please enter a valid URL' },
-            { whitespace: true, message: 'Website URL cannot be empty' },
           ]}
-          {...getFieldError('website_url')}
+          {...(validationErrors.length > 0 ? getFieldError('website_url') : {})}
         >
           <Input
             size="large"

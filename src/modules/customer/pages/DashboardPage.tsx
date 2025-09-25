@@ -121,9 +121,9 @@ export const DashboardPage: React.FC = () => {
             <Space direction="vertical" size="large" className="w-full">
               <div>
                 <Text className="text-gray-600">Status:</Text>
-                <div className="flex items-center gap-2 mt-1">
+                <div className="flex items-center gap-2 mt-2">
                   <div 
-                    className="w-3 h-3 rounded-full"
+                    className="w-3 h-3 rounded-full flex-shrink-0"
                     style={{ backgroundColor: user.status === 'active' ? '#00BFA5' : '#FFD700' }}
                   />
                   <Text strong className="capitalize">{user.status}</Text>
@@ -204,9 +204,9 @@ export const DashboardPage: React.FC = () => {
             <Space direction="vertical" size="large" className="w-full">
               <div>
                 <Text className="text-gray-600">Status:</Text>
-                <div className="flex items-center gap-2 mt-1">
+                <div className="flex items-center gap-2 mt-2">
                   <div 
-                    className="w-3 h-3 rounded-full"
+                    className="w-3 h-3 rounded-full flex-shrink-0"
                     style={{ backgroundColor: user.status === 'active' ? '#00BFA5' : '#FFD700' }}
                   />
                   <Text strong className="capitalize">{user.status}</Text>

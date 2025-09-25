@@ -98,24 +98,24 @@ export const ProjectDetailPage: React.FC = () => {
   };
 
   const startPolling = () => {
-    // Clear existing polling
-    if (pollingInterval) {
-      clearInterval(pollingInterval);
-    }
+    // // Clear existing polling
+    // if (pollingInterval) {
+    //   clearInterval(pollingInterval);
+    // }
     
-    // Start new polling every 10 seconds
-    const interval = setInterval(() => {
-      fetchAvailableRoutes();
-    }, 10000);
+    // // Start new polling every 10 seconds
+    // const interval = setInterval(() => {
+    //   fetchAvailableRoutes();
+    // }, 10000);
     
-    setPollingInterval(interval);
+    // setPollingInterval(interval);
   };
 
   const stopPolling = () => {
-    if (pollingInterval) {
-      clearInterval(pollingInterval);
-      setPollingInterval(null);
-    }
+    // if (pollingInterval) {
+    //   clearInterval(pollingInterval);
+    //   setPollingInterval(null);
+    // }
   };
 
   const fetchProjectDetails = async () => {
@@ -152,21 +152,21 @@ export const ProjectDetailPage: React.FC = () => {
       setAvailableRoutes(routes);
       setHasInitialRoutes(routes.length > 0);
       
-      // Check if there are any pending or in_progress items
-      const hasPendingAnalysis = routes.some(route => 
-        route.status === 'pending' || route.status === 'in_progress'
-      );
+      // // Check if there are any pending or in_progress items
+      // const hasPendingAnalysis = routes.some(route => 
+      //   route.status === 'pending' || route.status === 'in_progress'
+      // );
       
-      // Only start/stop polling if we're still on this page (component is mounted)
-      if (hasPendingAnalysis) {
-        if (!pollingInterval) {
-          startPolling();
-        }
-      } else {
-        if (pollingInterval) {
-          stopPolling();
-        }
-      }
+      // // Only start/stop polling if we're still on this page (component is mounted)
+      // if (hasPendingAnalysis) {
+      //   if (!pollingInterval) {
+      //     startPolling();
+      //   }
+      // } else {
+      //   if (pollingInterval) {
+      //     stopPolling();
+      //   }
+      // }
     } catch (err: any) {
       setRoutesError(err as ErrorResponse);
       setAvailableRoutes([]);
@@ -225,8 +225,8 @@ export const ProjectDetailPage: React.FC = () => {
       // Clear selection after successful analysis
       setSelectedRowKeys([]);
       
-      // Start polling to check for updates
-      startPolling();
+      // // Start polling to check for updates
+      // startPolling();
       
       // Refresh routes immediately to show updated status
       setTimeout(() => {

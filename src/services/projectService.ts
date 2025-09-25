@@ -156,6 +156,50 @@ export class ProjectService {
     }
   }
 
+  static async analyzePages(projectId: number, pageIds: number[]): Promise<any> {
+    try {
+      const response = await apiService.authPost(`/projects/${projectId}/pages/bulk-action/`, {
+        page_analysis_ids: pageIds
+      });
+      return response.data;
+    } catch (error: any) {
+      const errorResponse: ErrorResponse = {
+        code: ErrorCodes.UNKNOWN_ERROR,
+        message: 'Failed to analyze pages',
+      };
+
+      if (error.response) {
+        switch (error.response.status) {
+          case 400:
+            errorResponse.code = ErrorCodes.VALIDATION_ERROR;
+            errorResponse.message = 'Invalid page analysis data';
+            errorResponse.details = error.response.data;
+            break;
+          case 401:
+            errorResponse.code = ErrorCodes.UNAUTHORIZED;
+            errorResponse.message = 'You are not authorized to analyze pages';
+            break;
+          case 403:
+            errorResponse.code = ErrorCodes.FORBIDDEN;
+            errorResponse.message = 'Access denied';
+            break;
+          case 404:
+            errorResponse.code = ErrorCodes.NOT_FOUND;
+            errorResponse.message = 'Project not found';
+            break;
+          case 500:
+            errorResponse.code = ErrorCodes.SERVER_ERROR;
+            errorResponse.message = 'Server error occurred';
+            break;
+        }
+      } else if (error.request) {
+        errorResponse.code = ErrorCodes.NETWORK_ERROR;
+        errorResponse.message = 'Network error. Please check your connection.';
+      }
+
+      throw errorResponse;
+    }
+  }
   static async findPages(projectId: number): Promise<FindPagesResponse> {
     try {
       const response = await apiService.authGetLongTimeout<FindPagesResponse>(`/projects/${projectId}/find-url/`);

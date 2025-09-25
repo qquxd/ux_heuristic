@@ -31,7 +31,8 @@ import {
   CheckCircle2,
   AlertCircle,
   FileSearch,
-  Loader2
+  Loader2,
+  BarChart3
 } from 'lucide-react';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
 import { ProjectService, Project } from '../../../services/projectService';
@@ -47,9 +48,11 @@ export const ProjectDetailPage: React.FC = () => {
   
   const [project, setProject] = useState<Project | null>(null);
   const [availableRoutes, setAvailableRoutes] = useState<PageRoute[]>([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [loading, setLoading] = useState(true);
   const [routesLoading, setRoutesLoading] = useState(false);
   const [findingPages, setFindingPages] = useState(false);
+  const [analyzingPages, setAnalyzingPages] = useState(false);
   const [error, setError] = useState<ErrorResponse | null>(null);
   const [routesError, setRoutesError] = useState<ErrorResponse | null>(null);
   const [findPagesProgress, setFindPagesProgress] = useState(0);
@@ -140,6 +143,40 @@ export const ProjectDetailPage: React.FC = () => {
     }
   };
 
+  const handleAnalyzePages = async () => {
+    try {
+      setAnalyzingPages(true);
+      setRoutesError(null);
+      
+      const pageIds = selectedRowKeys.map(key => Number(key));
+      await ProjectService.analyzePages(parseInt(id!), pageIds);
+      
+      message.success(`Analysis started for ${pageIds.length} pages successfully!`);
+      
+      // Clear selection after successful analysis
+      setSelectedRowKeys([]);
+      
+    } catch (err: any) {
+      setRoutesError(err as ErrorResponse);
+      message.error('Failed to start page analysis. Please try again.');
+    } finally {
+      setAnalyzingPages(false);
+    }
+  };
+
+  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+    selections: [
+      Table.SELECTION_ALL,
+      Table.SELECTION_INVERT,
+      Table.SELECTION_NONE,
+    ],
+  };
   const getStatusConfig = (status: string) => {
     const normalizedStatus = status.toLowerCase();
     switch (normalizedStatus) {
@@ -466,21 +503,34 @@ export const ProjectDetailPage: React.FC = () => {
                 </div>
               )}
               
-              <Button
-                type="primary"
-                size="large"
-                icon={findingPages ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
-                onClick={handleFindPages}
-                loading={findingPages}
-                disabled={findingPages}
-                className="flex items-center gap-2"
-                style={{ 
-                  backgroundColor: '#00BFA5',
-                  borderColor: '#00BFA5',
-                }}
-              >
-                {findingPages ? 'Finding Pages...' : 'Find Pages'}
-              </Button>
+              <div className="flex items-center gap-3">
+                <Button
+                  size="large"
+                  icon={analyzingPages ? <Loader2 size={18} className="animate-spin" /> : <BarChart3 size={18} />}
+                  onClick={handleAnalyzePages}
+                  loading={analyzingPages}
+                  disabled={analyzingPages || selectedRowKeys.length === 0}
+                  className="flex items-center gap-2"
+                >
+                  {analyzingPages ? 'Analyzing...' : `Analyze${selectedRowKeys.length > 0 ? ` (${selectedRowKeys.length})` : ''}`}
+                </Button>
+                
+                <Button
+                  type="primary"
+                  size="large"
+                  icon={findingPages ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
+                  onClick={handleFindPages}
+                  loading={findingPages}
+                  disabled={findingPages}
+                  className="flex items-center gap-2"
+                  style={{ 
+                    backgroundColor: '#00BFA5',
+                    borderColor: '#00BFA5',
+                  }}
+                >
+                  {findingPages ? 'Finding Pages...' : 'Find Pages'}
+                </Button>
+              </div>
             </div>
           </div>
         }
@@ -559,6 +609,11 @@ export const ProjectDetailPage: React.FC = () => {
             <div className="flex items-center justify-between mb-4">
               <Text className="text-gray-600">
                 Found {availableRoutes.length} pages
+                {selectedRowKeys.length > 0 && (
+                  <span className="ml-2 text-blue-600">
+                    ({selectedRowKeys.length} selected)
+                  </span>
+                )}
               </Text>
               <Button
                 icon={<RefreshCw size={16} />}
@@ -571,6 +626,7 @@ export const ProjectDetailPage: React.FC = () => {
             </div>
             
             <Table<PageRoute>
+              rowSelection={rowSelection}
               columns={getTableColumns()}
               dataSource={availableRoutes}
               rowKey="id"

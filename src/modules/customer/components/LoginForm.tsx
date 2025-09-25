@@ -93,21 +93,6 @@ export const LoginForm: React.FC = () => {
             <Text className="text-gray-600 text-base">
               Sign in to your account to continue
             </Text>
-            {isDevelopment && (
-              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <Text className="text-yellow-800 text-sm block mb-2">
-                  🚀 Development Mode
-                </Text>
-                <Button
-                  size="small"
-                  onClick={handleDummyLogin}
-                  className="text-yellow-700 border-yellow-300 hover:border-yellow-400"
-                  disabled={isLoading}
-                >
-                  Use Dummy Credentials
-                </Button>
-              </div>
-            )}
           </div>
 
           {apiError && (

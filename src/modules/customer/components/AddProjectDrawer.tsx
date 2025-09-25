@@ -100,6 +100,15 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
     onClose();
   };
 
+  const handleFormValuesChange = () => {
+    // Clear validation errors when form values change
+    if (validationErrors.length > 0) {
+      setValidationErrors([]);
+    }
+    if (apiError) {
+      setApiError(null);
+    }
+  };
   return (
     <Drawer
       title={
@@ -167,6 +176,7 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
         form={form}
         layout="vertical"
         onFinish={handleSubmit}
+        onValuesChange={handleFormValuesChange}
         autoComplete="off"
         requiredMark={false}
         preserve={false}
@@ -179,6 +189,7 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
             { required: true, message: 'Please enter project name' },
             { min: 2, message: 'Project name must be at least 2 characters' },
             { max: 100, message: 'Project name must not exceed 100 characters' },
+            { whitespace: true, message: 'Project name cannot be empty' },
           ]}
           {...getFieldError('project_name')}
         >
@@ -202,6 +213,7 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
             { required: true, message: 'Please enter project description' },
             { min: 10, message: 'Description must be at least 10 characters' },
             { max: 500, message: 'Description must not exceed 500 characters' },
+            { whitespace: true, message: 'Description cannot be empty' },
           ]}
           {...getFieldError('description')}
         >
@@ -275,6 +287,7 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
             { required: true, message: 'Please enter project goal' },
             { min: 5, message: 'Goal must be at least 5 characters' },
             { max: 200, message: 'Goal must not exceed 200 characters' },
+            { whitespace: true, message: 'Goal cannot be empty' },
           ]}
           {...getFieldError('goal')}
         >
@@ -297,6 +310,7 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
           rules={[
             { required: true, message: 'Please enter website URL' },
             { type: 'url', message: 'Please enter a valid URL' },
+            { whitespace: true, message: 'Website URL cannot be empty' },
           ]}
           {...getFieldError('website_url')}
         >

@@ -452,6 +452,7 @@ export const ProjectDetailPage: React.FC = () => {
               {project.description}
             </Paragraph>
           </div>
+          </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 lg:flex-shrink-0">
             <Button

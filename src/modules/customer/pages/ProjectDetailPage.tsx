@@ -17,7 +17,8 @@ import {
   Tooltip,
   Badge,
   message,
-  TableColumnsType
+  TableColumnsType,
+  Select
 } from 'antd';
 import { 
   ArrowLeft, 
@@ -32,15 +33,19 @@ import {
   AlertCircle,
   FileSearch,
   Loader2,
-  BarChart3
+  BarChart3,
+  Eye,
+  Filter
 } from 'lucide-react';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
 import { ProjectService, Project } from '../../../services/projectService';
 import { PageRoute } from '../../../types/project.types';
 import { ErrorDisplay } from '../../../components/error/ErrorDisplay';
 import { ErrorResponse } from '../../../types/error.types';
+import { PageAnalysisModal } from '../components/PageAnalysisModal';
 
 const { Title, Text, Paragraph } = Typography;
+const { Option } = Select;
 
 export const ProjectDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -48,6 +53,7 @@ export const ProjectDetailPage: React.FC = () => {
   
   const [project, setProject] = useState<Project | null>(null);
   const [availableRoutes, setAvailableRoutes] = useState<PageRoute[]>([]);
+  const [filteredRoutes, setFilteredRoutes] = useState<PageRoute[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [loading, setLoading] = useState(true);
   const [routesLoading, setRoutesLoading] = useState(false);
@@ -57,13 +63,59 @@ export const ProjectDetailPage: React.FC = () => {
   const [routesError, setRoutesError] = useState<ErrorResponse | null>(null);
   const [findPagesProgress, setFindPagesProgress] = useState(0);
   const [hasInitialRoutes, setHasInitialRoutes] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [selectedPage, setSelectedPage] = useState<PageRoute | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (id) {
       fetchProjectDetails();
       fetchAvailableRoutes();
     }
+    
+    // Cleanup polling on unmount
+    return () => {
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
+      }
+    };
   }, [id]);
+
+  useEffect(() => {
+    filterRoutes();
+  }, [availableRoutes, statusFilter]);
+
+  const filterRoutes = () => {
+    let filtered = [...availableRoutes];
+    
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(route => route.status.toLowerCase() === statusFilter.toLowerCase());
+    }
+    
+    setFilteredRoutes(filtered);
+  };
+
+  const startPolling = () => {
+    // Clear existing polling
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+    }
+    
+    // Start new polling every 10 seconds
+    const interval = setInterval(() => {
+      fetchAvailableRoutes();
+    }, 10000);
+    
+    setPollingInterval(interval);
+  };
+
+  const stopPolling = () => {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+      setPollingInterval(null);
+    }
+  };
 
   const fetchProjectDetails = async () => {
     try {
@@ -98,6 +150,17 @@ export const ProjectDetailPage: React.FC = () => {
       const routes = await ProjectService.getAvailableRoutes(parseInt(id!));
       setAvailableRoutes(routes);
       setHasInitialRoutes(routes.length > 0);
+      
+      // Check if there are any pending or in_progress items
+      const hasPendingAnalysis = routes.some(route => 
+        route.status === 'pending' || route.status === 'in_progress'
+      );
+      
+      if (hasPendingAnalysis && !pollingInterval) {
+        startPolling();
+      } else if (!hasPendingAnalysis && pollingInterval) {
+        stopPolling();
+      }
     } catch (err: any) {
       setRoutesError(err as ErrorResponse);
       setAvailableRoutes([]);
@@ -156,12 +219,20 @@ export const ProjectDetailPage: React.FC = () => {
       // Clear selection after successful analysis
       setSelectedRowKeys([]);
       
+      // Start polling to check for updates
+      startPolling();
+      
     } catch (err: any) {
       setRoutesError(err as ErrorResponse);
       message.error('Failed to start page analysis. Please try again.');
     } finally {
       setAnalyzingPages(false);
     }
+  };
+
+  const handleViewAnalysis = (page: PageRoute) => {
+    setSelectedPage(page);
+    setModalOpen(true);
   };
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -177,6 +248,15 @@ export const ProjectDetailPage: React.FC = () => {
       Table.SELECTION_NONE,
     ],
   };
+
+  const getUniqueStatuses = () => {
+    const statuses = [...new Set(availableRoutes.map(route => route.status.toLowerCase()))];
+    return statuses.map(status => ({
+      value: status,
+      label: status.charAt(0).toUpperCase() + status.slice(1)
+    }));
+  };
+
   const getStatusConfig = (status: string) => {
     const normalizedStatus = status.toLowerCase();
     switch (normalizedStatus) {
@@ -192,6 +272,12 @@ export const ProjectDetailPage: React.FC = () => {
           color: '#FFD700', 
           icon: <Clock size={16} />, 
           label: 'In Progress' 
+        };
+      case 'pending':
+        return { 
+          color: '#1890ff', 
+          icon: <Clock size={16} />, 
+          label: 'Pending' 
         };
       case 'planning':
         return { 
@@ -239,41 +325,23 @@ export const ProjectDetailPage: React.FC = () => {
       key: 'status',
       width: 120,
       render: (status: string) => {
-        const getStatusColor = (status: string) => {
-          switch (status?.toLowerCase()) {
-            case 'active':
-            case 'success':
-              return '#00BFA5';
-            case 'pending':
-            case 'processing':
-              return '#FFD700';
-            case 'error':
-            case 'failed':
-              return '#ff4d4f';
-            default:
-              return '#666';
-          }
-        };
-        
+        const statusConfig = getStatusConfig(status);
         return (
           <Badge
-            color={getStatusColor(status)}
+            color={statusConfig.color}
             text={
-              <span className="capitalize font-medium">
-                {status || 'Unknown'}
+              <span className="flex items-center gap-1 font-medium">
+                {statusConfig.icon}
+                {statusConfig.label}
               </span>
             }
           />
         );
       },
-      filters: [
-        { text: 'Active', value: 'active' },
-        { text: 'Success', value: 'success' },
-        { text: 'Pending', value: 'pending' },
-        { text: 'Processing', value: 'processing' },
-        { text: 'Error', value: 'error' },
-        { text: 'Failed', value: 'failed' },
-      ],
+      filters: getUniqueStatuses().map(status => ({
+        text: status.label,
+        value: status.value,
+      })),
       onFilter: (value, record) => record.status?.toLowerCase() === value,
       sorter: (a, b) => (a.status || '').localeCompare(b.status || ''),
     },
@@ -311,18 +379,32 @@ export const ProjectDetailPage: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
-      width: 100,
+      width: 150,
       render: (_, record: PageRoute) => (
-        <Tooltip title={`Visit ${record.page_name}`}>
-          <Button
-            type="link"
-            icon={<ExternalLink size={16} />}
-            onClick={() => window.open(record.page_url, '_blank', 'noopener,noreferrer')}
-            aria-label={`Visit ${record.page_name} (opens in new tab)`}
-          >
-            Visit
-          </Button>
-        </Tooltip>
+        <div className="flex items-center gap-2">
+          <Tooltip title="View analysis details">
+            <Button
+              type="link"
+              icon={<Eye size={16} />}
+              onClick={() => handleViewAnalysis(record)}
+              aria-label={`View ${record.page_name} analysis`}
+              className="flex items-center justify-center p-0"
+            >
+              View
+            </Button>
+          </Tooltip>
+          <Tooltip title={`Visit ${record.page_name}`}>
+            <Button
+              type="link"
+              icon={<ExternalLink size={16} />}
+              onClick={() => window.open(record.page_url, '_blank', 'noopener,noreferrer')}
+              aria-label={`Visit ${record.page_name} (opens in new tab)`}
+              className="flex items-center justify-center p-0"
+            >
+              Visit
+            </Button>
+          </Tooltip>
+        </div>
       ),
     },
   ];
@@ -485,6 +567,13 @@ export const ProjectDetailPage: React.FC = () => {
               </div>
               
               <div className="text-center">
+                <div className="text-2xl font-bold text-green-600 mb-1">
+                  {availableRoutes.filter(route => route.status === 'completed').length}
+                </div>
+                <Text className="text-gray-500">Analyzed</Text>
+              </div>
+              
+              <div className="text-center">
                 <div className="text-2xl font-bold" style={{ color: statusConfig.color }}>
                   {statusConfig.label}
                 </div>
@@ -507,6 +596,13 @@ export const ProjectDetailPage: React.FC = () => {
                 <FileSearch size={20} className="text-white" />
               </div>
               <span>Available Pages</span>
+              {pollingInterval && (
+                <Badge 
+                  status="processing" 
+                  text="Auto-refreshing" 
+                  className="ml-2"
+                />
+              )}
             </div>
             
             <div className="flex items-center gap-3">
@@ -581,50 +677,90 @@ export const ProjectDetailPage: React.FC = () => {
           />
         )}
 
+        {/* Status Filter */}
+        {availableRoutes.length > 0 && (
+          <div className="mb-4">
+            <div className="flex items-center gap-4">
+              <Text strong>Filter by Status:</Text>
+              <Select
+                value={statusFilter}
+                onChange={(value) => setStatusFilter(value)}
+                style={{ minWidth: 150 }}
+                suffixIcon={<Filter size={16} />}
+              >
+                <Option value="all">All Status</Option>
+                {getUniqueStatuses().map(status => (
+                  <Option key={status.value} value={status.value}>
+                    {status.label}
+                  </Option>
+                ))}
+              </Select>
+              <Text className="text-gray-500 text-sm">
+                Showing {filteredRoutes.length} of {availableRoutes.length} pages
+              </Text>
+            </div>
+          </div>
+        )}
+
         {routesLoading ? (
           <div className="flex flex-col justify-center items-center py-12">
             <Spin size="large" />
             <Text className="mt-4 text-gray-500">Loading available pages...</Text>
           </div>
-        ) : availableRoutes.length === 0 ? (
+        ) : filteredRoutes.length === 0 ? (
           <div className="text-center py-12">
             <Empty
               image={<FileSearch size={64} className="mx-auto text-gray-300" />}
               description={
                 <div>
                   <Title level={4} className="text-gray-400 mb-2">
-                    {hasInitialRoutes ? 'No Pages Found' : 'No Pages Available'}
+                    {availableRoutes.length === 0 
+                      ? (hasInitialRoutes ? 'No Pages Found' : 'No Pages Available')
+                      : 'No Pages Match Filter'
+                    }
                   </Title>
                   <Text className="text-gray-500">
-                    {hasInitialRoutes 
-                      ? "The search didn't find any pages. Try clicking 'Find Pages' to discover new pages."
-                      : "No pages have been discovered yet. Click 'Find Pages' to start discovering pages on your website."
+                    {availableRoutes.length === 0
+                      ? (hasInitialRoutes 
+                        ? "The search didn't find any pages. Try clicking 'Find Pages' to discover new pages."
+                        : "No pages have been discovered yet. Click 'Find Pages' to start discovering pages on your website.")
+                      : "Try changing the status filter to see more pages."
                     }
                   </Text>
                 </div>
               }
             >
-              <Button 
-                type="primary" 
-                size="large" 
-                icon={<Search size={18} />}
-                onClick={handleFindPages}
-                loading={findingPages}
-                className="mt-4"
-                style={{ 
-                  backgroundColor: '#00BFA5',
-                  borderColor: '#00BFA5',
-                }}
-              >
-                Find Pages
-              </Button>
+              {availableRoutes.length === 0 ? (
+                <Button 
+                  type="primary" 
+                  size="large" 
+                  icon={<Search size={18} />}
+                  onClick={handleFindPages}
+                  loading={findingPages}
+                  className="mt-4"
+                  style={{ 
+                    backgroundColor: '#00BFA5',
+                    borderColor: '#00BFA5',
+                  }}
+                >
+                  Find Pages
+                </Button>
+              ) : (
+                <Button 
+                  size="large" 
+                  onClick={() => setStatusFilter('all')}
+                  className="mt-4"
+                >
+                  Clear Filter
+                </Button>
+              )}
             </Empty>
           </div>
         ) : (
           <div>
             <div className="flex items-center justify-between mb-4">
               <Text className="text-gray-600">
-                Found {availableRoutes.length} pages
+                Found {filteredRoutes.length} pages
                 {selectedRowKeys.length > 0 && (
                   <span className="ml-2 text-blue-600">
                     ({selectedRowKeys.length} selected)
@@ -644,7 +780,7 @@ export const ProjectDetailPage: React.FC = () => {
             <Table<PageRoute>
               rowSelection={rowSelection}
               columns={getTableColumns()}
-              dataSource={availableRoutes}
+              dataSource={filteredRoutes}
               rowKey="id"
               pagination={{
                 pageSize: 10,
@@ -659,6 +795,15 @@ export const ProjectDetailPage: React.FC = () => {
           </div>
         )}
       </Card>
+
+      <PageAnalysisModal
+        open={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          setSelectedPage(null);
+        }}
+        page={selectedPage}
+      />
     </DashboardLayout>
   );
 };

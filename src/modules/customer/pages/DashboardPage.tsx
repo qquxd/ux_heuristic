@@ -110,7 +110,7 @@ export const DashboardPage: React.FC = () => {
               <div className="flex items-center gap-3">
                 <div 
                   className="w-10 h-10 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: '#00BFA5' }}
+                  style={{ backgroundColor: '#000336' }}
                 >
                   <CheckCircle size={20} className="text-white" />
                 </div>
@@ -193,7 +193,7 @@ export const DashboardPage: React.FC = () => {
               <div className="flex items-center gap-3">
                 <div 
                   className="w-10 h-10 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: '#00BFA5' }}
+                  style={{ backgroundColor: '#000336' }}
                 >
                   <CheckCircle size={20} className="text-white" />
                 </div>

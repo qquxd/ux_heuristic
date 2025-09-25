@@ -149,10 +149,10 @@ export const PageAnalysisModal: React.FC<PageAnalysisModalProps> = ({
       open={open}
       onCancel={onClose}
       footer={null}
-      width={800}
+      width={1200}
       className="top-4"
       styles={{
-        body: { maxHeight: '80vh', overflowY: 'auto' }
+        body: { maxHeight: '85vh', overflowY: 'auto', padding: '32px' }
       }}
     >
       <div className="space-y-6">

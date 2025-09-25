@@ -438,20 +438,23 @@ export const ProjectDetailPage: React.FC = () => {
             <Title level={1} className="mb-3 text-3xl lg:text-4xl font-bold">
               {project.project_name}
             </Title>
-            <div className="flex items-center gap-4 mb-3">
+            <div className="flex items-center gap-4 mb-4">
               <Badge
                 color={statusConfig.color}
                 text={
-                  <span className="flex items-center gap-1 font-medium text-sm">
+                  <span className="flex items-center gap-1 font-medium text-base">
                     {statusConfig.icon}
                     {statusConfig.label}
                   </span>
                 }
               />
+              <Text className="text-gray-600 text-base capitalize font-medium">
+                {project.project_type.replace('_', ' ')} Project
+              </Text>
+            </div>
             <Paragraph className="text-gray-600 text-xl max-w-4xl leading-relaxed">
               {project.description}
             </Paragraph>
-          </div>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 lg:flex-shrink-0">

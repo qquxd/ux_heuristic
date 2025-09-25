@@ -296,7 +296,7 @@ export const ProjectDetailPage: React.FC = () => {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      width: 120,
+      width: 150,
       render: (status: string) => {
         const statusConfig = getStatusConfig(status);
         return (

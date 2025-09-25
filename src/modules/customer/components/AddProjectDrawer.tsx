@@ -52,15 +52,23 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
       setApiError(null);
       setValidationErrors([]);
 
+      // Trim all string values before submitting
+      const trimmedValues = {
+        ...values,
+        project_name: values.project_name?.trim(),
+        description: values.description?.trim(),
+        goal: values.goal?.trim(),
+        website_url: values.website_url?.trim(),
+      };
       const projectData: CreateProjectRequest = {
-        project_name: values.project_name,
-        description: values.description,
+        project_name: trimmedValues.project_name,
+        description: trimmedValues.description,
         project_type: values.project_type,
         status: values.status,
         project_goal: {
-          goal: values.goal,
+          goal: trimmedValues.goal,
         },
-        website_url: values.website_url,
+        website_url: trimmedValues.website_url,
       };
 
       await ProjectService.createProject(projectData);
@@ -108,6 +116,9 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
     if (apiError) {
       setApiError(null);
     }
+    
+    // Clear form validation errors
+    form.clearValidate();
   };
   return (
     <Drawer
@@ -177,9 +188,20 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
           name="project_name"
           rules={[
             { required: true, message: 'Please enter project name' },
-            { min: 2, message: 'Project name must be at least 2 characters' },
-            { max: 100, message: 'Project name must not exceed 100 characters' },
-            { whitespace: true, message: 'Project name cannot be empty' },
+            { 
+              validator: (_, value) => {
+                if (!value || !value.trim()) {
+                  return Promise.reject(new Error('Please enter project name'));
+                }
+                if (value.trim().length < 2) {
+                  return Promise.reject(new Error('Project name must be at least 2 characters'));
+                }
+                if (value.trim().length > 100) {
+                  return Promise.reject(new Error('Project name must not exceed 100 characters'));
+                }
+                return Promise.resolve();
+              }
+            },
           ]}
           {...getFieldError('project_name')}
         >
@@ -201,9 +223,20 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
           name="description"
           rules={[
             { required: true, message: 'Please enter project description' },
-            { min: 10, message: 'Description must be at least 10 characters' },
-            { max: 500, message: 'Description must not exceed 500 characters' },
-            { whitespace: true, message: 'Description cannot be empty' },
+            { 
+              validator: (_, value) => {
+                if (!value || !value.trim()) {
+                  return Promise.reject(new Error('Please enter project description'));
+                }
+                if (value.trim().length < 10) {
+                  return Promise.reject(new Error('Description must be at least 10 characters'));
+                }
+                if (value.trim().length > 500) {
+                  return Promise.reject(new Error('Description must not exceed 500 characters'));
+                }
+                return Promise.resolve();
+              }
+            },
           ]}
           {...getFieldError('description')}
         >
@@ -275,9 +308,20 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
           name="goal"
           rules={[
             { required: true, message: 'Please enter project goal' },
-            { min: 5, message: 'Goal must be at least 5 characters' },
-            { max: 200, message: 'Goal must not exceed 200 characters' },
-            { whitespace: true, message: 'Goal cannot be empty' },
+            { 
+              validator: (_, value) => {
+                if (!value || !value.trim()) {
+                  return Promise.reject(new Error('Please enter project goal'));
+                }
+                if (value.trim().length < 5) {
+                  return Promise.reject(new Error('Goal must be at least 5 characters'));
+                }
+                if (value.trim().length > 200) {
+                  return Promise.reject(new Error('Goal must not exceed 200 characters'));
+                }
+                return Promise.resolve();
+              }
+            },
           ]}
           {...getFieldError('goal')}
         >
@@ -299,8 +343,18 @@ export const AddProjectDrawer: React.FC<AddProjectDrawerProps> = ({
           name="website_url"
           rules={[
             { required: true, message: 'Please enter website URL' },
-            { type: 'url', message: 'Please enter a valid URL' },
-            { whitespace: true, message: 'Website URL cannot be empty' },
+            { 
+              validator: (_, value) => {
+                if (!value || !value.trim()) {
+                  return Promise.reject(new Error('Please enter website URL'));
+                }
+                const urlPattern = /^https?:\/\/.+/;
+                if (!urlPattern.test(value.trim())) {
+                  return Promise.reject(new Error('Please enter a valid URL starting with http:// or https://'));
+                }
+                return Promise.resolve();
+              }
+            },
           ]}
           {...getFieldError('website_url')}
         >

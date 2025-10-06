@@ -209,6 +209,13 @@ export const ProjectDetailPage: React.FC = () => {
     }
   };
 
+  const handleRefresh = async () => {
+    await Promise.all([
+      fetchAvailableRoutes(),
+      refreshUserData()
+    ]);
+  };
+
   const handleViewAnalysis = (page: PageRoute) => {
     setSelectedPage(page);
     setModalOpen(true);
@@ -658,7 +665,7 @@ export const ProjectDetailPage: React.FC = () => {
                   </Text>
                   <Button
                     icon={<RefreshCw size={16} />}
-                    onClick={fetchAvailableRoutes}
+                    onClick={handleRefresh}
                     disabled={routesLoading || findingPages}
                     className="flex items-center gap-2 text-base font-medium"
                   >

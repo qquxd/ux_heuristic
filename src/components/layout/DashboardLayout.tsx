@@ -133,14 +133,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
             <div className="flex items-center gap-6">
               {/* Credit Display */}
-              <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-lg border">
+              <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border">
                 <CreditCard size={16} className="text-gray-500" />
-                <div className="flex flex-col">
-                  <Text className="text-xs text-gray-500 leading-tight">Credits</Text>
-                  <Text className="text-sm font-semibold text-gray-800 leading-tight">
-                    {user?.credit_remaining || 0}
-                  </Text>
-                </div>
+                <Text className="text-sm font-medium text-gray-600">
+                  Credits: <span className="font-semibold text-gray-800">{user?.credit_remaining || 0}</span>
+                </Text>
               </div>
               
               <Text className="text-gray-600 hidden lg:block text-lg font-medium">

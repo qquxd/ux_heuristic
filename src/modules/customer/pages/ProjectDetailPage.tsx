@@ -84,6 +84,7 @@ export const ProjectDetailPage: React.FC = () => {
   const refreshUserData = async () => {
     try {
       const userData = await UserService.getCurrentUser();
+      console.log('Refreshed user data:', userData); // Debug log
       setUser(userData);
     } catch (error) {
       console.error('Failed to refresh user data:', error);

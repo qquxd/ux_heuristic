@@ -78,6 +78,15 @@ export const ProjectDetailPage: React.FC = () => {
     filterRoutes();
   }, [availableRoutes, statusFilter]);
 
+  const refreshUserData = async () => {
+    try {
+      const userData = await UserService.getCurrentUser();
+      setUser(userData);
+    } catch (error) {
+      console.error('Failed to refresh user data:', error);
+    }
+  };
+
   const filterRoutes = () => {
     let filtered = [...availableRoutes];
     
@@ -153,6 +162,9 @@ export const ProjectDetailPage: React.FC = () => {
       
       message.success(`Found ${response.available_routes.length} pages successfully!`);
       
+      // Refresh user data to update credits after finding pages
+      refreshUserData();
+      
       setTimeout(() => {
         setFindPagesProgress(0);
       }, 1000);
@@ -182,6 +194,7 @@ export const ProjectDetailPage: React.FC = () => {
       // Refresh routes immediately to show updated status
       setTimeout(() => {
         fetchAvailableRoutes();
+        refreshUserData(); // Refresh user data to update credits
       }, 1000);
       
     } catch (err: any) {

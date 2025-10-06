@@ -17,6 +17,7 @@ export interface RegisterResponse {
     name: string;
     organisation: string;
     plan: number;
+    credit_remaining: number;
     status: string;
     created_on: string;
     updated_on: string;
@@ -39,6 +40,7 @@ export interface LoginResponse {
     name: string;
     organisation: string;
     plan: number;
+    credit_remaining: number;
     status: string;
     created_on: string;
     updated_on: string;

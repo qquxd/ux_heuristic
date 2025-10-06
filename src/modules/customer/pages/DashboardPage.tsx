@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Typography, Space, Descriptions, Row, Col, Statistic } from 'antd';
-import { User, Building, Calendar, CheckCircle } from 'lucide-react';
+import { User, Building, Calendar, CheckCircle, CreditCard } from 'lucide-react';
 import { useAuthStore } from '../../../store/authStore';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
 
@@ -62,9 +62,10 @@ export const DashboardPage: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card className="text-center">
             <Statistic
-              title="Projects"
-              value="0"
+              title="Credits Remaining"
+              value={user.credit_remaining || 0}
               valueStyle={{ color: '#00BFA5' }}
+              prefix={<CreditCard size={20} />}
             />
           </Card>
         </Col>

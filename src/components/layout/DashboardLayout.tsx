@@ -6,7 +6,8 @@ import {
   User, 
   LogOut, 
   Menu as MenuIcon,
-  X 
+  X,
+  CreditCard
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
@@ -131,6 +132,17 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             />
 
             <div className="flex items-center gap-6">
+              {/* Credit Display */}
+              <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-lg border">
+                <CreditCard size={16} className="text-gray-500" />
+                <div className="flex flex-col">
+                  <Text className="text-xs text-gray-500 leading-tight">Credits</Text>
+                  <Text className="text-sm font-semibold text-gray-800 leading-tight">
+                    {user?.credit_remaining || 0}
+                  </Text>
+                </div>
+              </div>
+              
               <Text className="text-gray-600 hidden lg:block text-lg font-medium">
                 Welcome back, {user?.name}
               </Text>
@@ -152,8 +164,13 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                     <div className="text-gray-800 text-base font-semibold leading-tight">
                       {user?.name}
                     </div>
-                    <div className="text-gray-500 text-sm font-medium leading-tight mt-0.5">
-                      {user?.organisation}
+                    <div className="flex items-center gap-2 text-gray-500 text-sm font-medium leading-tight mt-0.5">
+                      <span>{user?.organisation}</span>
+                      <span className="text-xs">•</span>
+                      <span className="flex items-center gap-1">
+                        <CreditCard size={12} />
+                        {user?.credit_remaining || 0} credits
+                      </span>
                     </div>
                   </div>
                 </div>

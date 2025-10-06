@@ -140,10 +140,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                 </Text>
               </div>
               
-              <Text className="text-gray-600 hidden lg:block text-lg font-medium">
-                Welcome back, {user?.name}
-              </Text>
-              
               <Dropdown
                 menu={{ items: userMenuItems }}
                 placement="bottomRight"
@@ -161,13 +157,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                     <div className="text-gray-800 text-base font-semibold leading-tight">
                       {user?.name}
                     </div>
-                    <div className="flex items-center gap-2 text-gray-500 text-sm font-medium leading-tight mt-0.5">
-                      <span>{user?.organisation}</span>
-                      <span className="text-xs">•</span>
-                      <span className="flex items-center gap-1">
-                        <CreditCard size={12} />
-                        {user?.credit_remaining || 0} credits
-                      </span>
+                    <div className="text-gray-500 text-sm font-medium leading-tight mt-0.5">
+                      {user?.organisation}
                     </div>
                   </div>
                 </div>

@@ -39,10 +39,12 @@ import {
 } from 'lucide-react';
 import { DashboardLayout } from '../../../components/layout/DashboardLayout';
 import { ProjectService, Project } from '../../../services/projectService';
+import { UserService } from '../../../services/userService';
 import { PageRoute } from '../../../types/project.types';
 import { ErrorDisplay } from '../../../components/error/ErrorDisplay';
 import { ErrorResponse } from '../../../types/error.types';
 import { PageAnalysisModal } from '../components/PageAnalysisModal';
+import { useAuthStore } from '../../../store/authStore';
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -50,6 +52,7 @@ const { Option } = Select;
 export const ProjectDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { setUser } = useAuthStore();
   
   const [project, setProject] = useState<Project | null>(null);
   const [availableRoutes, setAvailableRoutes] = useState<PageRoute[]>([]);

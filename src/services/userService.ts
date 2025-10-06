@@ -5,7 +5,7 @@ import { User } from '../store/authStore';
 export class UserService {
   static async getCurrentUser(): Promise<User> {
     try {
-      const response = await apiService.authGet<User>('/auth/user/');
+      const response = await apiService.authGet<User>('/auth/users/me/');
       return response.data;
     } catch (error: any) {
       const errorResponse: ErrorResponse = {
